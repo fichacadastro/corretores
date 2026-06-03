@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recadastramento de Colaboradores</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --red:       #C62828;
+  --red-dk:    #8B0000;
+  --red-lt:    #fce4e4;
+  --red-border:#ef9a9a;
+  --bg:        #f0f2f5;
+  --surface:   #ffffff;
+  --surface2:  #f9fafb;
+  --border:    #e0e0e0;
+  --border2:   #bdbdbd;
+  --text:      #1a1a1a;
+  --text2:     #424242;
+  --text3:     #9e9e9e;
+  --success:   #2e7d32;
+  --error:     #c62828;
+  --radius:    12px;
+  --radius-sm: 8px;
+  --shadow:    0 2px 10px rgba(0,0,0,.08), 0 1px 4px rgba(0,0,0,.05);
+  --shadow-lg: 0 8px 28px rgba(0,0,0,.13);
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Barra de progresso ── */
+.progress-bar-wrap {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: 4px; background: var(--border);
+}
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--red-dk), var(--red));
+  transition: width .5s cubic-bezier(.4,0,.2,1);
+  width: 0%;
+}
+
+/* ── Steps ── */
+.form-container { max-width: 680px; margin: 0 auto; padding: 0 16px 80px; }
+.step { display: none; animation: stepIn .3s ease; }
+.step.active { display: block; }
+@keyframes stepIn {
+  from { opacity:0; transform:translateY(18px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* ══════════════════════════════════════════════════
+   CAPA
+══════════════════════════════════════════════════ */
+.cover {
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 48px 8px;
+}
+.cover-logo {
+  width: 72px; height: 72px; border-radius: 20px;
+  background: linear-gradient(135deg, var(--red-dk), var(--red));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32px; margin: 0 auto 24px;
+  box-shadow: 0 6px 24px rgba(198,40,40,.4);
+}
+.cover-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--red-lt); border: 1px solid var(--red-border);
+  color: var(--red); font-size: 12px; font-weight: 700;
+  padding: 5px 14px; border-radius: 20px;
+  margin-bottom: 22px; letter-spacing: .8px; text-transform: uppercase;
+}
+.cover-title {
+  font-size: clamp(30px, 6vw, 48px);
+  font-weight: 800; line-height: 1.15;
+  letter-spacing: -.5px; margin-bottom: 14px;
+  color: var(--text);
+}
+.cover-title span { color: var(--red); }
+.cover-desc {
+  font-size: 16px; color: var(--text2);
+  line-height: 1.75; max-width: 500px;
+  margin: 0 auto 16px;
+}
+.cover-lgpd {
+  background: var(--surface); border: 1px solid var(--border);
+  border-left: 4px solid var(--red);
+  border-radius: var(--radius); padding: 16px 20px;
+  margin: 16px auto 32px; max-width: 500px;
+  text-align: left; font-size: 14px; color: var(--text3); line-height: 1.65;
+}
+.cover-lgpd strong { color: var(--text2); }
+
+/* Botão de início — chamativo */
+.btn-start {
+  background: linear-gradient(135deg, var(--red-dk), var(--red));
+  color: #fff; border: none; border-radius: 50px;
+  padding: 18px 52px; font-size: 18px; font-weight: 800;
+  cursor: pointer; font-family: inherit; letter-spacing: .3px;
+  box-shadow: 0 6px 28px rgba(198,40,40,.45), 0 2px 8px rgba(198,40,40,.3);
+  transition: all .25s;
+  animation: pulse 2.5s ease-in-out infinite;
+  display: inline-flex; align-items: center; gap: 10px;
+}
+.btn-start:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 12px 36px rgba(198,40,40,.55);
+  animation: none;
+}
+.btn-start:active { transform: translateY(0) scale(.98); }
+.btn-start .arrow {
+  display: inline-block;
+  transition: transform .25s;
+}
+.btn-start:hover .arrow { transform: translateX(6px); }
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 6px 28px rgba(198,40,40,.45), 0 0 0 0 rgba(198,40,40,.4); }
+  50%       { box-shadow: 0 6px 28px rgba(198,40,40,.45), 0 0 0 10px rgba(198,40,40,0); }
+}
+.cover-sub {
+  font-size: 13px; color: var(--text3); margin-top: 14px;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+
+/* ══════════════════════════════════════════════════
+   CARDS E SEÇÕES
+══════════════════════════════════════════════════ */
+.section-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 28px 0 14px;
+}
+.section-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: var(--red-lt); border: 1px solid var(--red-border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.section-title { font-size: 18px; font-weight: 700; color: var(--text); }
+.section-subtitle { font-size: 13px; color: var(--text3); margin-top: 2px; }
+
+.subsection-divider {
+  display: flex; align-items: center; gap: 10px;
+  margin: 22px 0 14px;
+}
+.subsection-divider span {
+  font-size: 12px; font-weight: 700; color: var(--red);
+  text-transform: uppercase; letter-spacing: .8px; white-space: nowrap;
+}
+.subsection-divider::before,
+.subsection-divider::after { content:''; flex:1; height:1px; background:var(--red-border); opacity:.5; }
+
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 22px;
+  margin-bottom: 12px; box-shadow: var(--shadow);
+  transition: box-shadow .2s;
+}
+.card:focus-within { box-shadow: var(--shadow-lg); border-color: var(--red-border); }
+
+/* ══════════════════════════════════════════════════
+   CAMPOS
+══════════════════════════════════════════════════ */
+.field { margin-bottom: 20px; }
+.field:last-child { margin-bottom: 0; }
+
+.field-label {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 14px; font-weight: 600; color: var(--text2);
+  margin-bottom: 8px;
+}
+.field-label .req { color: var(--red); font-size: 15px; }
+.field-label .opt { color: var(--text3); font-weight: 400; font-size: 13px; }
+.field-hint { font-size: 13px; color: var(--text3); margin-top: 6px; }
+
+/* Inputs */
+.f-input, .f-select {
+  width: 100%;
+  background: var(--surface2); border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 13px 15px;
+  font-size: 16px; color: var(--text);
+  outline: none;
+  transition: border-color .15s, box-shadow .15s, background .15s;
+  font-family: inherit; appearance: none; -webkit-appearance: none;
+}
+.f-input::placeholder { color: var(--text3); font-size: 15px; }
+.f-input:focus, .f-select:focus {
+  border-color: var(--red);
+  box-shadow: 0 0 0 3px rgba(198,40,40,.12);
+  background: #fff;
+}
+.f-input.has-error { border-color: var(--error); background: #fff8f8; }
+.f-input.has-success { border-color: var(--success); }
+.f-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0l6 8 6-8z' fill='%239e9e9e'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 14px center;
+  padding-right: 38px; cursor: pointer; background-color: var(--surface2);
+}
+
+/* Cidade com datalist */
+.cidade-wrap { position: relative; }
+.cidade-spinner {
+  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+  width: 18px; height: 18px; display: none;
+  border: 2.5px solid var(--border2); border-top-color: var(--red);
+  border-radius: 50%; animation: spin .7s linear infinite;
+}
+.cidade-spinner.show { display: block; }
+@keyframes spin { to{ transform: translateY(-50%) rotate(360deg); } }
+
+/* Grids */
+.grid-2  { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.grid-3  { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 12px; }
+.grid-3b { display: grid; grid-template-columns: 1fr 1fr 72px; gap: 12px; }
+
+/* Choices (radio/checkbox visual) */
+.choices { display: flex; flex-direction: column; gap: 8px; }
+.choices.horizontal { flex-direction: row; flex-wrap: wrap; gap: 10px; }
+.choice-item {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--surface2); border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); padding: 13px 16px;
+  cursor: pointer; transition: all .15s; user-select: none;
+  font-size: 15px; color: var(--text2);
+}
+.choice-item:hover { border-color: var(--border2); color: var(--text); background: #fff; }
+.choice-item.selected { border-color: var(--red); background: var(--red-lt); color: var(--red); font-weight: 600; }
+.choice-item input { display: none; }
+.choice-dot {
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 2px solid var(--border2); flex-shrink: 0;
+  transition: all .15s; display: flex; align-items: center; justify-content: center;
+}
+.choice-item.selected .choice-dot { border-color: var(--red); background: var(--red); }
+.choice-dot::after { content:''; width:6px; height:6px; border-radius:50%; background:#fff; opacity:0; }
+.choice-item.selected .choice-dot::after { opacity:1; }
+
+/* Checkbox múltiplo */
+.check-dot {
+  width: 18px; height: 18px; border-radius: 4px;
+  border: 2px solid var(--border2); flex-shrink: 0;
+  transition: all .15s; display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: #fff;
+}
+.choice-item.selected .check-dot { border-color: var(--red); background: var(--red); }
+.choice-item.selected .check-dot::after { content: '✓'; }
+
+/* Aceite */
+.aceite-wrap {
+  background: var(--red-lt); border: 1.5px solid var(--red-border);
+  border-radius: var(--radius); padding: 18px 20px;
+  display: flex; align-items: flex-start; gap: 14px;
+  cursor: pointer; transition: border-color .15s;
+}
+.aceite-wrap:hover { border-color: var(--red); }
+.aceite-wrap input[type=checkbox] { display:none; }
+.aceite-check {
+  width: 22px; height: 22px; min-width: 22px; border-radius: 6px;
+  border: 2px solid var(--red-border);
+  display: flex; align-items: center; justify-content: center;
+  transition: all .15s; margin-top: 1px;
+  font-size: 13px; font-weight: 800; color: #fff;
+}
+.aceite-check.checked { background: var(--red); border-color: var(--red); }
+.aceite-text { font-size: 15px; color: var(--text2); line-height: 1.6; }
+
+/* Erros */
+.field-error { font-size: 13px; color: var(--error); margin-top: 6px; display: none; }
+.field-error.show { display: block; }
+.cpf-status { font-size: 13px; margin-top: 6px; display: none; }
+.cpf-status.valid   { display:block; color: var(--success); font-weight: 600; }
+.cpf-status.invalid { display:block; color: var(--error); font-weight: 600; }
+
+/* Condicional */
+.cond-field.hidden { display: none; }
+
+/* ══════════════════════════════════════════════════
+   NAVEGAÇÃO
+══════════════════════════════════════════════════ */
+.nav-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 24px 0 0; gap: 10px;
+}
+.step-counter { font-size: 14px; color: var(--text3); }
+.step-counter strong { color: var(--text2); }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  border: none; border-radius: var(--radius-sm);
+  font-size: 16px; font-weight: 600; cursor: pointer;
+  padding: 13px 26px; transition: all .2s; font-family: inherit;
+}
+.btn-primary { background: var(--red); color: #fff; box-shadow: 0 2px 12px rgba(198,40,40,.3); }
+.btn-primary:hover { background: var(--red-dk); transform: translateY(-1px); }
+.btn-secondary { background: var(--surface2); color: var(--text2); border: 1.5px solid var(--border); }
+.btn-secondary:hover { background: var(--border); color: var(--text); }
+.btn-submit {
+  background: linear-gradient(135deg, var(--red-dk), var(--red));
+  color: #fff; font-size: 17px; padding: 16px 40px;
+  box-shadow: 0 4px 20px rgba(198,40,40,.4);
+  width: 100%; justify-content: center;
+  border-radius: var(--radius); margin-top: 8px;
+}
+.btn-submit:hover { background: linear-gradient(135deg, #6d0000, var(--red-dk)); transform: translateY(-1px); }
+
+/* ══════════════════════════════════════════════════
+   TELA DE SUCESSO
+══════════════════════════════════════════════════ */
+.success-screen {
+  min-height: 80vh; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 60px 0;
+}
+.success-icon {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: #e8f5e9; border: 2px solid #a5d6a7;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36px; margin: 0 auto 24px;
+  animation: popIn .5s cubic-bezier(.175,.885,.32,1.275);
+}
+@keyframes popIn { from{transform:scale(0);opacity:0;} to{transform:scale(1);opacity:1;} }
+.success-title { font-size: 28px; font-weight: 800; margin-bottom: 12px; }
+.success-desc { font-size: 16px; color: var(--text2); line-height: 1.7; max-width: 420px; }
+
+/* Spinner */
+.spinner { display:inline-block; width:18px; height:18px; border:2.5px solid rgba(255,255,255,.4); border-top-color:#fff; border-radius:50%; animation:spin .8s linear infinite; vertical-align:middle; }
+
+/* ══════════════════════════════════════════════════
+   RESPONSIVO
+══════════════════════════════════════════════════ */
+@media(max-width:600px) {
+  .grid-2, .grid-3, .grid-3b { grid-template-columns: 1fr; }
+  .choices.horizontal { flex-direction: column; }
+  .card { padding: 18px; }
+  .btn { padding: 13px 20px; font-size: 15px; }
+  .btn-start { padding: 17px 44px; font-size: 17px; width: 100%; justify-content: center; }
+  .section-title { font-size: 17px; }
+  .cover { padding: 64px 8px 48px; justify-content: flex-start; }
+  .cover-logo { margin-top: 8px; }
+  .field-error { margin-top: 4px; }
+  .nav-bar { flex-wrap: wrap; gap: 8px; }
+  .step-counter { order: -1; width: 100%; text-align: center; padding-bottom: 4px; }
+}
+</style>
+</head>
+<body>
+
+<div class="progress-bar-wrap">
+  <div class="progress-bar-fill" id="progressBar"></div>
+</div>
+
+<div class="form-container">
+
+<!-- ══ STEP 0 — CAPA ══ -->
+<div class="step active" id="step-0">
+  <div class="cover">
+    <div class="cover-logo">📋</div>
+    <div class="cover-badge">🔒 Uso Interno · Confidencial</div>
+    <h1 class="cover-title">Recadastramento<br>de <span>Colaboradores</span></h1>
+    <p class="cover-desc">
+      Prezado(a) colaborador(a), bem-vindo(a).<br><br>
+      Este formulário é parte do nosso processo de auditoria e governança interna.
+      O objetivo é garantir que todas as suas informações pessoais, profissionais e
+	  bancárias estejam corretas em nossa base de dados.<br>
+      O preenchimento é obrigatório e levará apenas alguns minutos.
+    </p>
+    <div class="cover-lgpd">
+      <strong>🔒 Aviso de Privacidade (LGPD)</strong><br>
+      Seus dados são coletados em ambiente seguro com criptografia SSL/TLS e
+      armazenados com acesso restrito ao departamento pessoal e à diretoria,
+      em conformidade com a Lei nº 13.709/2018.
+    </div>
+    <button class="btn-start" onclick="irParaStep(1)">
+      Começar preenchimento <span class="arrow">→</span>
+    </button>
+    <div class="cover-sub">
+      <span>⏱</span> Aproximadamente 3 minutos
+    </div>
+  </div>
+</div>
+
+<!-- ══ STEP 1 — IDENTIFICAÇÃO ══ -->
+<div class="step" id="step-1">
+  <div class="section-header">
+    <div class="section-icon">🪪</div>
+    <div>
+      <div class="section-title">Identificação</div>
+      <div class="section-subtitle">Etapa 1 de 5</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="field">
+      <div class="field-label">Cargo / Função <span class="req">*</span></div>
+      <div class="field-hint" style="margin-bottom:10px">Sua escolha determina quais campos serão exibidos a seguir.</div>
+      <div class="choices" id="cargoChoices">
+        <label class="choice-item" onclick="selecionarCargo(this,'Corretor(a)')"><input type="radio" name="cargo" value="Corretor(a)"><div class="choice-dot"></div>Corretor(a)</label>
+        <label class="choice-item" onclick="selecionarCargo(this,'Gerente')"><input type="radio" name="cargo" value="Gerente"><div class="choice-dot"></div>Gerente</label>
+        <label class="choice-item" onclick="selecionarCargo(this,'Administrativo')"><input type="radio" name="cargo" value="Administrativo"><div class="choice-dot"></div>Administrativo</label>
+        <label class="choice-item" onclick="selecionarCargo(this,'Diretoria')"><input type="radio" name="cargo" value="Diretoria"><div class="choice-dot"></div>Diretoria</label>
+        <label class="choice-item" onclick="selecionarCargo(this,'Outros')"><input type="radio" name="cargo" value="Outros"><div class="choice-dot"></div>Outros</label>
+      </div>
+      <div class="field-error" id="err-cargo">Selecione seu cargo para continuar.</div>
+    </div>
+  </div>
+  <div class="nav-bar">
+    <button class="btn btn-secondary" onclick="irParaStep(0)">← Voltar</button>
+    <span class="step-counter">Etapa <strong>1</strong> de 5</span>
+    <button class="btn btn-primary" onclick="avancarStep1()">Próximo →</button>
+  </div>
+</div>
+
+<!-- ══ STEP 2 — DADOS PESSOAIS ══ -->
+<div class="step" id="step-2">
+  <div class="section-header">
+    <div class="section-icon">👤</div>
+    <div>
+      <div class="section-title">Dados Pessoais</div>
+      <div class="section-subtitle" id="subtituloCargo">Etapa 2 de 5</div>
+    </div>
+  </div>
+  <div class="card">
+    <!-- Nome -->
+    <div class="field">
+      <div class="field-label">Nome Completo <span class="req">*</span></div>
+      <input class="f-input" type="text" id="nomeCompleto" maxlength="60" placeholder="Digite seu nome completo" oninput="limparErro('nomeCompleto')">
+      <div class="field-error" id="err-nomeCompleto">Nome completo é obrigatório.</div>
+    </div>
+
+    <!-- CPF + RG -->
+    <div class="grid-2">
+      <div class="field">
+        <div class="field-label">CPF <span class="req">*</span></div>
+        <input class="f-input" type="text" id="cpf" maxlength="14" placeholder="000.000.000-00" inputmode="numeric" oninput="aplicarMascaraCPF(this)" onblur="validarCPFCampo()">
+        <div class="cpf-status" id="cpf-ok">✓ CPF válido</div>
+        <div class="cpf-status" id="cpf-err">✗ CPF inválido</div>
+        <div class="field-error" id="err-cpf">CPF é obrigatório.</div>
+      </div>
+      <div class="field">
+        <div class="field-label">RG <span class="req">*</span></div>
+        <input class="f-input" type="text" id="rg" maxlength="20" placeholder="Número do RG" oninput="limparErro('rg')">
+        <div class="field-error" id="err-rg">RG é obrigatório.</div>
+      </div>
+    </div>
+
+    <!-- Data de Nascimento + Sexo -->
+    <div class="grid-2">
+      <div class="field">
+        <div class="field-label">Data de Nascimento <span class="req">*</span></div>
+        <input class="f-input" type="text" id="dataNascimento" maxlength="10" placeholder="00/00/0000" inputmode="numeric" oninput="aplicarMascaraData(this)" onblur="validarData()">
+        <div class="field-error" id="err-dataNascimento">Data de nascimento inválida. Use DD/MM/AAAA.</div>
+      </div>
+      <div class="field">
+        <div class="field-label">Sexo <span class="req">*</span></div>
+        <div class="choices" id="sexoChoices">
+          <label class="choice-item" onclick="selecionarChoice(this,'sexoChoices','err-sexo')"><input type="radio" name="sexo" value="Feminino"><div class="choice-dot"></div>Feminino</label>
+          <label class="choice-item" onclick="selecionarChoice(this,'sexoChoices','err-sexo')"><input type="radio" name="sexo" value="Masculino"><div class="choice-dot"></div>Masculino</label>
+        </div>
+        <div class="field-error" id="err-sexo">Sexo é obrigatório.</div>
+      </div>
+    </div>
+
+    <!-- Estado Civil -->
+    <div class="field">
+      <div class="field-label">Estado Civil <span class="req">*</span></div>
+      <select class="f-select" id="estadoCivil" onchange="limparErro('estadoCivil')">
+        <option value="">Selecione</option>
+        <option>Solteiro(a)</option>
+        <option>Casado(a)</option>
+        <option>Divorciado(a)</option>
+        <option>Viúvo(a)</option>
+        <option>Separado(a) Judicialmente</option>
+      </select>
+      <div class="field-error" id="err-estadoCivil">Selecione o estado civil.</div>
+    </div>
+
+    <!-- Celular + Tel Comercial -->
+    <div class="grid-2">
+      <div class="field">
+        <div class="field-label">Celular <span class="req">*</span></div>
+        <input class="f-input" type="text" id="celular" maxlength="15" placeholder="(00) 00000-0000" inputmode="numeric" oninput="aplicarMascaraTel(this)" onblur="validarTel(this,'err-celular')">
+        <div class="field-error" id="err-celular">Celular inválido. Use (00) 00000-0000.</div>
+      </div>
+      <div class="field">
+        <div class="field-label">Telefone Comercial <span class="opt">(opcional)</span></div>
+        <input class="f-input" type="text" id="telComercial" maxlength="15" placeholder="(00) 00000-0000" inputmode="numeric" oninput="aplicarMascaraTel(this)">
+      </div>
+    </div>
+
+    <!-- E-mail Pessoal + E-mail Profissional -->
+    <div class="grid-2">
+      <div class="field">
+        <div class="field-label">E-mail Pessoal <span id="emailPessoalLabel" class="req">*</span></div>
+        <input class="f-input" type="email" id="emailPessoal" placeholder="email@gmail.com" oninput="limparErro('emailPessoal')" onblur="validarEmail(this,'err-emailPessoal')">
+        <div class="field-error" id="err-emailPessoal">E-mail inválido.</div>
+      </div>
+      <div class="field">
+        <div class="field-label">E-mail Profissional <span class="opt">(opcional)</span></div>
+        <input class="f-input" type="email" id="emailProf" placeholder="email@empresa.com.br" onblur="validarEmail(this,'err-emailProf')">
+        <div class="field-error" id="err-emailProf">E-mail inválido.</div>
+      </div>
+    </div>
+
+    <!-- Área de Atuação — só Corretor -->
+    <div class="cond-field hidden" id="campo-areaAtuacao">
+      <div class="field">
+        <div class="field-label">Área de Atuação <span class="req">*</span></div>
+        <div class="choices horizontal" id="areaAtuacaoChoices">
+          <label class="choice-item" onclick="selecionarCheckbox(this,'areaAtuacaoChoices')">
+            <input type="checkbox" name="areaAtuacao" value="Venda">
+            <div class="check-dot"></div>Venda
+          </label>
+          <label class="choice-item" onclick="selecionarCheckbox(this,'areaAtuacaoChoices')">
+            <input type="checkbox" name="areaAtuacao" value="Locação">
+            <div class="check-dot"></div>Locação
+          </label>
+        </div>
+        <div class="field-hint">Exclusivo para Corretor(a) — selecione uma ou ambas</div>
+        <div class="field-error" id="err-areaAtuacao">Área de Atuação é obrigatório para Corretor(a).</div>
+      </div>
+    </div>
+
+    <!-- Nome Equipe/Gerente — só Corretor -->
+    <div class="cond-field hidden" id="campo-nomeGerente">
+      <div class="field">
+        <div class="field-label">Nome da Equipe / Gerente Responsável <span class="req">*</span></div>
+        <input class="f-input" type="text" id="nomeGerente" maxlength="60" placeholder="Nome completo da Equipe/Gerente" oninput="limparErro('nomeGerente')">
+        <div class="field-hint">Exclusivo para Corretor(a)</div>
+        <div class="field-error" id="err-nomeGerente">Nome da Equipe/Gerente é obrigatório para Corretor(a).</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-bar">
+    <button class="btn btn-secondary" onclick="irParaStep(1)">← Voltar</button>
+    <span class="step-counter">Etapa <strong>2</strong> de 5</span>
+    <button class="btn btn-primary" onclick="avancarStep2()">Próximo →</button>
+  </div>
+</div>
+
+<!-- ══ STEP 3 — ENDEREÇO ══ -->
+<div class="step" id="step-3">
+  <div class="section-header">
+    <div class="section-icon">📍</div>
+    <div>
+      <div class="section-title">Endereço</div>
+      <div class="section-subtitle">Etapa 3 de 5</div>
+    </div>
+  </div>
+  <div class="card">
+    <!-- UF + Cidade -->
+    <div class="grid-2">
+      <div class="field">
+        <div class="field-label">UF (Estado) <span class="req">*</span></div>
+        <select class="f-select" id="uf" onchange="carregarCidades()">
+          <option value="">Selecione</option>
+          <option>AC</option><option>AL</option><option>AP</option><option>AM</option>
+          <option>BA</option><option>CE</option><option>DF</option><option>ES</option>
+          <option>GO</option><option>MA</option><option>MT</option><option>MS</option>
+          <option>MG</option><option>PA</option><option>PB</option><option>PR</option>
+          <option>PE</option><option>PI</option><option>RJ</option><option>RN</option>
+          <option>RS</option><option>RO</option><option>RR</option><option>SC</option>
+          <option>SP</option><option>SE</option><option>TO</option>
+        </select>
+        <div class="field-error" id="err-uf">Selecione o estado.</div>
+      </div>
+      <div class="field">
+        <div class="field-label">Cidade <span class="req">*</span></div>
+        <div class="cidade-wrap">
+          <input class="f-input" type="text" id="cidade" list="cidades-list"
+            placeholder="Selecione o estado primeiro"
+            disabled autocomplete="off"
+            oninput="limparErro('cidade')">
+          <datalist id="cidades-list"></datalist>
+          <div class="cidade-spinner" id="cidadeSpinner"></div>
+        </div>
+        <div class="field-hint" id="cidadeHint" style="display:none">Digite para buscar sua cidade</div>
+        <div class="field-error" id="err-cidade">Informe a cidade.</div>
+      </div>
+    </div>
+
+    <!-- CEP + Bairro -->
+    <div class="grid-2">
+      <div class="field">
+        <div class="field-label">CEP <span class="req">*</span></div>
+        <input class="f-input" type="text" id="cep" maxlength="9" placeholder="00000-000" inputmode="numeric" oninput="aplicarMascaraCEP(this)" onblur="limparErro('cep')">
+        <div class="field-error" id="err-cep">CEP inválido. Use 00000-000.</div>
+      </div>
+      <div class="field">
+        <div class="field-label">Bairro <span class="req">*</span></div>
+        <input class="f-input" type="text" id="bairro" maxlength="100" placeholder="Santana, Pinheiros..." oninput="limparErro('bairro')">
+        <div class="field-error" id="err-bairro">Bairro é obrigatório.</div>
+      </div>
+    </div>
+
+    <!-- Endereço -->
+    <div class="field">
+      <div class="field-label">Endereço <span class="req">*</span></div>
+      <input class="f-input" type="text" id="endereco" maxlength="100" placeholder="Rua, Avenida, Travessa..." oninput="limparErro('endereco')">
+      <div class="field-error" id="err-endereco">Endereço é obrigatório.</div>
+    </div>
+
+    <!-- Número + Complemento -->
+    <div class="grid-3">
+      <div class="field">
+        <div class="field-label">Número <span class="req">*</span></div>
+        <input class="f-input" type="text" id="numEndereco" maxlength="5" placeholder="Nº" inputmode="numeric" onkeypress="return /[0-9]/.test(event.key)" oninput="limparErro('numEndereco')">
+        <div class="field-error" id="err-numEndereco">Número inválido.</div>
+      </div>
+      <div class="field" style="grid-column:span 2">
+        <div class="field-label">Complemento <span class="opt">(opcional)</span></div>
+        <input class="f-input" type="text" id="complemento" maxlength="50" placeholder="Apto, Sala, Bloco...">
+      </div>
+    </div>
+  </div>
+
+  <!-- CRECI condicional -->
+  <div class="cond-field hidden" id="secao-creci">
+    <div class="section-header" style="padding-top:14px">
+      <div class="section-icon">🏛️</div>
+      <div>
+        <div class="section-title">Registro CRECI</div>
+        <div class="section-subtitle">Opcional</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="grid-2">
+        <div class="field">
+          <div class="field-label">Número do CRECI <span class="opt">(opcional)</span></div>
+          <input class="f-input" type="text" id="creci" maxlength="10" placeholder="0000000000" inputmode="numeric" onkeypress="return /[0-9]/.test(event.key)" oninput="verificarCRECI()">
+          <div class="field-hint">Apenas dígitos, máximo 10</div>
+        </div>
+        <div class="cond-field hidden" id="campo-statusCreci">
+          <div class="field">
+            <div class="field-label">Status CRECI <span class="opt">(opcional)</span></div>
+            <select class="f-select" id="statusCreci">
+              <option value="">Selecione</option>
+              <option>Ativo</option>
+              <option>Cancelado</option>
+              <option>Inativo</option>
+              <option>Suspenso</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-bar">
+    <button class="btn btn-secondary" onclick="irParaStep(2)">← Voltar</button>
+    <span class="step-counter">Etapa <strong>3</strong> de 5</span>
+    <button class="btn btn-primary" onclick="avancarStep3()">Próximo →</button>
+  </div>
+</div>
+
+<!-- ══ STEP 4 — BANCÁRIO + PIX ══ -->
+<div class="step" id="step-4">
+  <div class="section-header">
+    <div class="section-icon">🏦</div>
+    <div>
+      <div class="section-title">Dados Bancários e PIX</div>
+      <div class="section-subtitle">Etapa 4 de 5</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="field">
+      <div class="field-label">Banco <span class="req">*</span></div>
+      <select class="f-select" id="banco" onchange="limparErro('banco')">
+        <option value="">Selecione o banco</option>
+        <optgroup label="── Principais ──">
+          <option>001 – Banco do Brasil S.A.</option>
+          <option>033 – Banco Santander (Brasil) S.A.</option>
+          <option>104 – Caixa Econômica Federal</option>
+          <option>237 – Banco Bradesco S.A.</option>
+          <option>341 – Itaú Unibanco S.A.</option>
+          <option>260 – Nu Pagamentos S.A. (Nubank)</option>
+          <option>077 – Banco Inter S.A.</option>
+          <option>336 – Banco C6 S.A.</option>
+          <option>290 – PagSeguro Internet S.A.</option>
+          <option>323 – Mercado Pago</option>
+        </optgroup>
+        <optgroup label="── Outros (por código) ──">
+          <option>003 – Banco da Amazônia S.A.</option>
+          <option>004 – Banco do Nordeste do Brasil S.A.</option>
+          <option>021 – Banestes S.A.</option>
+          <option>025 – Banco Alfa S.A.</option>
+          <option>036 – Banco Bradesco BBI S.A.</option>
+          <option>041 – Banco do Estado do RS S.A. (Banrisul)</option>
+          <option>047 – Banco do Estado de Sergipe S.A.</option>
+          <option>069 – Banco Crefisa S.A.</option>
+          <option>070 – BRB – Banco de Brasília S.A.</option>
+          <option>085 – Cooperativa Central de Crédito – AILOS</option>
+          <option>097 – Credisis</option>
+          <option>099 – Uniprime Central</option>
+          <option>136 – Unicred do Brasil</option>
+          <option>197 – Stone Pagamentos S.A.</option>
+          <option>208 – Banco BTG Pactual S.A.</option>
+          <option>212 – Banco Original S.A.</option>
+          <option>218 – Banco BS2 S.A.</option>
+          <option>246 – Banco ABC Brasil S.A.</option>
+          <option>318 – Banco BMG S.A.</option>
+          <option>348 – Banco XP S.A.</option>
+          <option>380 – PicPay Serviços S.A.</option>
+          <option>389 – Banco Mercantil do Brasil S.A.</option>
+          <option>422 – Banco Safra S.A.</option>
+          <option>505 – Banco Credit Suisse (Brasil) S.A.</option>
+          <option>633 – Banco Rendimento S.A.</option>
+          <option>637 – Banco Sofisa S.A.</option>
+          <option>707 – Banco Daycoval S.A.</option>
+          <option>735 – Banco Neon S.A.</option>
+          <option>745 – Citibank N.A.</option>
+          <option>748 – Sicredi</option>
+          <option>756 – Bancoob / Sicoob</option>
+        </optgroup>
+      </select>
+      <div class="field-error" id="err-banco">Selecione o banco.</div>
+    </div>
+
+    <div class="grid-3b">
+      <div class="field">
+        <div class="field-label">Agência <span class="req">*</span></div>
+        <input class="f-input" type="text" id="agencia" maxlength="4" placeholder="0000" inputmode="numeric" onkeypress="return /[0-9]/.test(event.key)" oninput="this.value=this.value.replace(/\D/g,'');limparErro('agencia')" onblur="padAgencia()">
+        <div class="field-hint">Até 4 dígitos — zeros preenchidos automaticamente</div>
+        <div class="field-error" id="err-agencia">Agência inválida.</div>
+      </div>
+      <div class="field">
+        <div class="field-label">Conta <span class="req">*</span></div>
+        <input class="f-input" type="text" id="conta" maxlength="15" placeholder="000000000000000" inputmode="numeric" onkeypress="return /[0-9]/.test(event.key)" oninput="this.value=this.value.replace(/\D/g,'');limparErro('conta')">
+        <div class="field-hint">Até 15 dígitos</div>
+        <div class="field-error" id="err-conta">Conta inválida.</div>
+      </div>
+      <div class="field">
+        <div class="field-label">Dígito <span class="req">*</span></div>
+        <input class="f-input" type="text" id="digitoConta" maxlength="1" placeholder="0" oninput="limparErro('digitoConta')">
+        <div class="field-error" id="err-digitoConta">Obrigatório.</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Tipo de Conta <span class="req">*</span></div>
+      <div class="choices" id="tipoContaChoices">
+        <label class="choice-item" onclick="selecionarChoice(this,'tipoContaChoices','err-tipoConta')"><input type="radio" name="tipoConta" value="Conta-Corrente"><div class="choice-dot"></div>Conta-Corrente</label>
+        <label class="choice-item" onclick="selecionarChoice(this,'tipoContaChoices','err-tipoConta')"><input type="radio" name="tipoConta" value="Conta Digital"><div class="choice-dot"></div>Conta Digital</label>
+        <label class="choice-item" onclick="selecionarChoice(this,'tipoContaChoices','err-tipoConta')"><input type="radio" name="tipoConta" value="Conta Pagamento"><div class="choice-dot"></div>Conta Pagamento</label>
+        <label class="choice-item" onclick="selecionarChoice(this,'tipoContaChoices','err-tipoConta')"><input type="radio" name="tipoConta" value="Conta PJ"><div class="choice-dot"></div>Conta PJ</label>
+        <label class="choice-item" onclick="selecionarChoice(this,'tipoContaChoices','err-tipoConta')"><input type="radio" name="tipoConta" value="Conta Poupança"><div class="choice-dot"></div>Conta Poupança</label>
+        <label class="choice-item" onclick="selecionarChoice(this,'tipoContaChoices','err-tipoConta')"><input type="radio" name="tipoConta" value="Conta Salário"><div class="choice-dot"></div>Conta Salário</label>
+      </div>
+      <div class="field-error" id="err-tipoConta">Selecione o tipo de conta.</div>
+    </div>
+
+    <div class="subsection-divider"><span>⚡ Chave PIX</span></div>
+
+    <div class="field">
+      <div class="field-label">Tipo de Chave PIX <span class="opt">(opcional)</span></div>
+      <div class="choices horizontal" id="tipoPixChoices">
+        <label class="choice-item" onclick="selecionarTipoPix(this,'CPF')"><input type="radio" name="tipoPix" value="CPF"><div class="choice-dot"></div>CPF</label>
+        <label class="choice-item" onclick="selecionarTipoPix(this,'Celular')"><input type="radio" name="tipoPix" value="Celular"><div class="choice-dot"></div>Celular</label>
+        <label class="choice-item" onclick="selecionarTipoPix(this,'E-mail')"><input type="radio" name="tipoPix" value="E-mail"><div class="choice-dot"></div>E-mail</label>
+      </div>
+    </div>
+
+    <div class="cond-field hidden" id="campo-chavePix">
+      <div class="field">
+        <div class="field-label">Chave PIX <span class="req">*</span></div>
+        <input class="f-input" type="text" id="chavePix" maxlength="100" oninput="validarChavePix()" onblur="validarChavePixBlur()">
+        <div class="field-hint" id="pixFormatoHint"></div>
+        <div class="field-error" id="err-chavePix">Chave PIX inválida para o tipo selecionado.</div>
+      </div>
+    </div>
+
+    <div class="subsection-divider"><span>👤 Favorecido</span></div>
+
+    <div class="grid-2">
+      <div class="field">
+        <div class="field-label">Nome do Favorecido <span class="opt">(opcional)</span></div>
+        <input class="f-input" type="text" id="favorecido" maxlength="60" placeholder="Nome completo">
+      </div>
+      <div class="field">
+        <div class="field-label">CPF / CNPJ do Favorecido <span class="opt">(opcional)</span></div>
+        <input class="f-input" type="text" id="docFavorecido" maxlength="60" placeholder="Documento">
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-bar">
+    <button class="btn btn-secondary" onclick="irParaStep(3)">← Voltar</button>
+    <span class="step-counter">Etapa <strong>4</strong> de 5</span>
+    <button class="btn btn-primary" onclick="avancarStep4()">Próximo →</button>
+  </div>
+</div>
+
+<!-- ══ STEP 5 — ACEITE + ENVIO ══ -->
+<div class="step" id="step-5">
+  <div class="section-header">
+    <div class="section-icon">✅</div>
+    <div>
+      <div class="section-title">Confirmação e Envio</div>
+      <div class="section-subtitle">Etapa 5 de 5 · Última etapa</div>
+    </div>
+  </div>
+  <div class="card">
+    <p style="font-size:15px;color:var(--text2);margin-bottom:20px;line-height:1.6">
+      Antes de enviar, confirme que todas as informações preenchidas estão corretas e leia o termo de aceite abaixo.
+    </p>
+    <div class="field">
+      <div class="field-label">Termo de Aceite <span class="req">*</span></div>
+      <label class="aceite-wrap" onclick="toggleAceite()">
+        <input type="checkbox" id="aceite">
+        <div class="aceite-check" id="aceiteCheck"></div>
+        <span class="aceite-text">Declaro que as informações fornecidas são verdadeiras e consinto com o tratamento dos meus dados pessoais para as finalidades descritas, em conformidade com a LGPD (Lei nº 13.709/2018).</span>
+      </label>
+      <div class="field-error" id="err-aceite">Por favor, aceite os termos para enviar.</div>
+    </div>
+  </div>
+
+  <button class="btn btn-submit" onclick="enviarFormulario()" id="btnEnviar">
+    Enviar Recadastramento ✓
+  </button>
+
+  <div class="nav-bar" style="padding-top:12px">
+    <button class="btn btn-secondary" onclick="irParaStep(4)">← Voltar</button>
+    <span class="step-counter">Etapa <strong>5</strong> de 5</span>
+    <div></div>
+  </div>
+</div>
+
+<!-- ══ STEP 6 — SUCESSO ══ -->
+<div class="step" id="step-6">
+  <div class="success-screen">
+    <div class="success-icon">✓</div>
+    <h2 class="success-title">Recadastramento enviado!</h2>
+    <p class="success-desc">
+      Obrigado(a), <strong id="nomeConfirmacao"></strong>.<br><br>
+      Suas informações foram recebidas com sucesso.<br>
+      Em caso de dúvidas, contate o Departamento Pessoal.
+    </p>
+  </div>
+</div>
+
+</div><!-- /form-container -->
+
+<script>
+let cargoSelecionado = '';
+let tipoPixSelecionado = '';
+
+// ── Navegação ──
+function irParaStep(n) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step-' + n).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  document.getElementById('progressBar').style.width = (n === 0 ? 0 : Math.round((n / 5) * 100)) + '%';
+}
+
+// ── Aceite ──
+function toggleAceite() {
+  const cb = document.getElementById('aceite');
+  const ch = document.getElementById('aceiteCheck');
+  cb.checked = !cb.checked;
+  ch.classList.toggle('checked', cb.checked);
+  ch.textContent = cb.checked ? '✓' : '';
+  esconderErro('err-aceite');
+}
+
+// ── Cargo ──
+function selecionarCargo(el, valor) {
+  document.querySelectorAll('#cargoChoices .choice-item').forEach(i => i.classList.remove('selected'));
+  el.classList.add('selected');
+  el.querySelector('input').checked = true;
+  cargoSelecionado = valor;
+  esconderErro('err-cargo');
+}
+
+// ── Choice radio genérico ──
+function selecionarChoice(el, groupId, errId) {
+  document.querySelectorAll('#' + groupId + ' .choice-item').forEach(i => i.classList.remove('selected'));
+  el.classList.add('selected');
+  el.querySelector('input').checked = true;
+  if (errId) esconderErro(errId);
+}
+
+// ── Checkbox múltiplo ──
+function selecionarCheckbox(el, groupId) {
+  const cb = el.querySelector('input[type=checkbox]');
+  cb.checked = !cb.checked;
+  el.classList.toggle('selected', cb.checked);
+  esconderErro('err-areaAtuacao');
+}
+
+// ── Step 1 → 2 ──
+function avancarStep1() {
+  if (!cargoSelecionado) { mostrarErro('err-cargo'); return; }
+
+  // Condicional Corretor
+  const isCorretor = cargoSelecionado === 'Corretor(a)';
+  document.getElementById('campo-areaAtuacao').classList.toggle('hidden', !isCorretor);
+  document.getElementById('campo-nomeGerente').classList.toggle('hidden', !isCorretor);
+
+  // E-mail Pessoal: obrigatório para todos exceto Outros
+  const lbl = document.getElementById('emailPessoalLabel');
+  if (cargoSelecionado === 'Outros') { lbl.className='opt'; lbl.textContent='(opcional)'; }
+  else { lbl.className='req'; lbl.textContent='*'; }
+
+  document.getElementById('subtituloCargo').textContent = 'Etapa 2 de 5 · ' + cargoSelecionado;
+  irParaStep(2);
+}
+
+// ── Step 2 → 3 ──
+function avancarStep2() {
+  let ok = true;
+  if (!v('nomeCompleto'))  { mostrarErro('err-nomeCompleto'); ok = false; }
+  const cpfNum = document.getElementById('cpf').value.replace(/\D/g,'');
+  if (!cpfNum)             { mostrarErro('err-cpf'); ok = false; }
+  else if (!validarCPF(cpfNum)) { mostrarErro('err-cpf'); ok = false; }
+  if (!v('rg'))            { mostrarErro('err-rg'); ok = false; }
+  if (!validarDataValor()) { mostrarErro('err-dataNascimento'); ok = false; }
+  if (!document.querySelector('input[name="sexo"]:checked')) { mostrarErro('err-sexo'); ok = false; }
+  if (!v('estadoCivil'))   { mostrarErro('err-estadoCivil'); ok = false; }
+  if (document.getElementById('celular').value.replace(/\D/g,'').length < 10) { mostrarErro('err-celular'); ok = false; }
+
+  const ep = document.getElementById('emailPessoal').value;
+  if (cargoSelecionado !== 'Outros' && !emailValido(ep)) { mostrarErro('err-emailPessoal'); ok = false; }
+  if (ep && !emailValido(ep)) { mostrarErro('err-emailPessoal'); ok = false; }
+
+  const epro = document.getElementById('emailProf').value;
+  if (epro && !emailValido(epro)) { mostrarErro('err-emailProf'); ok = false; }
+
+  if (cargoSelecionado === 'Corretor(a)') {
+    const areas = document.querySelectorAll('input[name="areaAtuacao"]:checked');
+    if (areas.length === 0) { mostrarErro('err-areaAtuacao'); ok = false; }
+    if (!v('nomeGerente')) { mostrarErro('err-nomeGerente'); ok = false; }
+  }
+
+  if (!ok) { scrollToFirstError(); return; }
+
+  const temCreci = ['Corretor(a)','Gerente','Diretoria'].includes(cargoSelecionado);
+  document.getElementById('secao-creci').classList.toggle('hidden', !temCreci);
+  irParaStep(3);
+}
+
+// ── Step 3 → 4 ──
+function avancarStep3() {
+  let ok = true;
+  if (!v('uf'))        { mostrarErro('err-uf');        ok = false; }
+  if (!v('cidade'))    { mostrarErro('err-cidade');    ok = false; }
+  const cepNum = document.getElementById('cep').value.replace(/\D/g,'');
+  if (cepNum.length !== 8) { mostrarErro('err-cep');    ok = false; }
+  if (!v('bairro'))    { mostrarErro('err-bairro');    ok = false; }
+  if (!v('endereco'))  { mostrarErro('err-endereco');  ok = false; }
+  const num = document.getElementById('numEndereco').value;
+  if (!num || isNaN(num) || +num < 1 || +num > 99999) { mostrarErro('err-numEndereco'); ok = false; }
+  if (!ok) { scrollToFirstError(); return; }
+  irParaStep(4);
+}
+
+// ── Step 4 → 5 ──
+function avancarStep4() {
+  let ok = true;
+  if (!v('banco'))           { mostrarErro('err-banco');       ok = false; }
+  padAgencia();
+  if (!v('agencia') || v('agencia').replace(/\D/g,'').length < 1) { mostrarErro('err-agencia'); ok = false; }
+  if (!v('conta'))           { mostrarErro('err-conta');       ok = false; }
+  if (!v('digitoConta'))     { mostrarErro('err-digitoConta'); ok = false; }
+  if (!document.querySelector('input[name="tipoConta"]:checked')) { mostrarErro('err-tipoConta'); ok = false; }
+  if (tipoPixSelecionado) {
+    const pix = document.getElementById('chavePix').value;
+    let pixOk = false;
+    if (tipoPixSelecionado==='CPF')    pixOk = validarCPF(pix.replace(/\D/g,''));
+    if (tipoPixSelecionado==='Celular') pixOk = pix.replace(/\D/g,'').length>=10;
+    if (tipoPixSelecionado==='E-mail') pixOk = emailValido(pix);
+    if (!pixOk) { mostrarErro('err-chavePix'); ok = false; }
+  }
+  if (!ok) { scrollToFirstError(); return; }
+  irParaStep(5);
+}
+
+// ── Cidades IBGE ──
+async function carregarCidades() {
+  const uf = document.getElementById('uf').value;
+  const inp = document.getElementById('cidade');
+  const dl  = document.getElementById('cidades-list');
+  const sp  = document.getElementById('cidadeSpinner');
+  const ht  = document.getElementById('cidadeHint');
+  inp.value=''; inp.disabled=true; dl.innerHTML=''; ht.style.display='none';
+  esconderErro('err-uf');
+  if (!uf) { inp.placeholder='Selecione o estado primeiro'; return; }
+  sp.classList.add('show'); inp.placeholder='Carregando...';
+  try {
+    const r = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios?orderBy=nome`);
+    const lista = await r.json();
+    lista.forEach(c => { const o=document.createElement('option'); o.value=c.nome; dl.appendChild(o); });
+    inp.placeholder='Digite para buscar a cidade...';
+    inp.disabled=false; ht.style.display='block';
+  } catch(e) { inp.placeholder='Digite o nome da cidade'; inp.disabled=false; }
+  sp.classList.remove('show');
+}
+
+// ── CRECI condicional ──
+function verificarCRECI() {
+  const val = document.getElementById('creci').value;
+  document.getElementById('campo-statusCreci').classList.toggle('hidden', !val);
+  if (!val) document.getElementById('statusCreci').value='';
+}
+
+// ── PIX condicional ──
+function selecionarTipoPix(el, tipo) {
+  document.querySelectorAll('#tipoPixChoices .choice-item').forEach(i=>i.classList.remove('selected'));
+  el.classList.add('selected'); el.querySelector('input').checked=true;
+  tipoPixSelecionado=tipo;
+  const fmt={CPF:'000.000.000-00',Celular:'(00) 00000-0000','E-mail':'email@dominio.com'};
+  const inp=document.getElementById('chavePix');
+  document.getElementById('pixFormatoHint').textContent='Formato: '+fmt[tipo];
+  inp.placeholder=fmt[tipo]; inp.value='';
+  document.getElementById('campo-chavePix').classList.remove('hidden');
+  esconderErro('err-chavePix');
+}
+function validarChavePix() {
+  const inp=document.getElementById('chavePix');
+  if (tipoPixSelecionado==='CPF') aplicarMascaraCPF(inp);
+  else if (tipoPixSelecionado==='Celular') aplicarMascaraTel(inp);
+  esconderErro('err-chavePix');
+}
+function validarChavePixBlur() {
+  const val=document.getElementById('chavePix').value;
+  if (!val) return;
+  let ok=false;
+  if (tipoPixSelecionado==='CPF')    ok=validarCPF(val.replace(/\D/g,''));
+  if (tipoPixSelecionado==='Celular') ok=val.replace(/\D/g,'').length>=10;
+  if (tipoPixSelecionado==='E-mail') ok=emailValido(val);
+  if (!ok) mostrarErro('err-chavePix'); else esconderErro('err-chavePix');
+}
+
+// ── Máscaras ──
+function aplicarMascaraCPF(inp) {
+  inp.value=inp.value.replace(/\D/g,'').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})/,'$1-$2').replace(/(-\d{2})\d+$/,'$1');
+  esconderErro('err-cpf');
+  document.getElementById('cpf-ok').classList.remove('valid');
+  document.getElementById('cpf-err').classList.remove('invalid');
+}
+function aplicarMascaraTel(inp) {
+  let v=inp.value.replace(/\D/g,'');
+  if (v.length<=10) v=v.replace(/(\d{2})(\d)/,'($1) $2').replace(/(\d{4})(\d)/,'$1-$2');
+  else v=v.replace(/(\d{2})(\d)/,'($1) $2').replace(/(\d{5})(\d)/,'$1-$2').replace(/(-\d{4})\d+$/,'$1');
+  inp.value=v;
+}
+function aplicarMascaraData(inp) {
+  inp.value=inp.value.replace(/\D/g,'').replace(/(\d{2})(\d)/,'$1/$2').replace(/(\d{2})(\d)/,'$1/$2').replace(/(\/\d{4})\d+$/,'$1');
+}
+function padAgencia() {
+  const inp = document.getElementById('agencia');
+  if (inp.value) inp.value = inp.value.replace(/\D/g,'').padStart(4,'0');
+}
+function aplicarMascaraCEP(inp) {
+  inp.value=inp.value.replace(/\D/g,'').replace(/(\d{5})(\d)/,'$1-$2').replace(/(-\d{3})\d+$/,'$1');
+  esconderErro('err-cep');
+}
+
+// ── Validações ──
+function validarCPF(cpf) {
+  cpf=cpf.replace(/\D/g,'');
+  if (cpf.length!==11||/^(\d)\1+$/.test(cpf)) return false;
+  let s=0; for(let i=0;i<9;i++) s+=+cpf[i]*(10-i);
+  let r=(s*10)%11; if(r===10||r===11) r=0; if(r!==+cpf[9]) return false;
+  s=0; for(let i=0;i<10;i++) s+=+cpf[i]*(11-i);
+  r=(s*10)%11; if(r===10||r===11) r=0; return r===+cpf[10];
+}
+function validarCPFCampo() {
+  const val=document.getElementById('cpf').value.replace(/\D/g,'');
+  const ok=document.getElementById('cpf-ok'); const er=document.getElementById('cpf-err');
+  ok.classList.remove('valid'); er.classList.remove('invalid');
+  if (!val) return;
+  if (validarCPF(val)) ok.classList.add('valid');
+  else { er.classList.add('invalid'); mostrarErro('err-cpf'); }
+}
+function validarDataValor() {
+  const v=document.getElementById('dataNascimento').value;
+  if (!v||v.length!==10) return false;
+  const [d,m,a]=v.split('/').map(Number);
+  if (!d||!m||!a||d<1||d>31||m<1||m>12||a<1900||a>2099) return false;
+  const dt=new Date(a,m-1,d);
+  return dt.getFullYear()===a&&dt.getMonth()===m-1&&dt.getDate()===d;
+}
+function validarData() { if (!validarDataValor()) mostrarErro('err-dataNascimento'); else esconderErro('err-dataNascimento'); }
+function emailValido(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+function validarEmail(inp,errId) { if(inp.value&&!emailValido(inp.value)) mostrarErro(errId); else esconderErro(errId); }
+function validarTel(inp,errId) { if(inp.value.replace(/\D/g,'').length<10) mostrarErro(errId); else esconderErro(errId); }
+
+// ── Helpers ──
+function v(id) { return (document.getElementById(id).value||'').trim(); }
+function mostrarErro(id)  { const el=document.getElementById(id); if(el) el.classList.add('show'); }
+function esconderErro(id) { const el=document.getElementById(id); if(el) el.classList.remove('show'); }
+function limparErro(id)   { esconderErro('err-'+id); }
+function scrollToFirstError() { const f=document.querySelector('.field-error.show'); if(f) f.scrollIntoView({behavior:'smooth',block:'center'}); }
+
+// ── Envio ──
+async function enviarFormulario() {
+  if (!document.getElementById('aceite').checked) { mostrarErro('err-aceite'); return; }
+
+  const btn=document.getElementById('btnEnviar');
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Enviando...';
+
+  const areas=[...document.querySelectorAll('input[name="areaAtuacao"]:checked')].map(i=>i.value).join(', ');
+
+  const dados={
+    timestamp:      new Date().toLocaleString('pt-BR'),
+    cargo:          cargoSelecionado,
+    aceite:         'Sim',
+    nomeCompleto:   v('nomeCompleto'),
+    cpf:            v('cpf'),
+    rg:             v('rg'),
+    dataNascimento: v('dataNascimento'),
+    sexo:           (document.querySelector('input[name="sexo"]:checked')||{value:''}).value,
+    estadoCivil:    v('estadoCivil'),
+    celular:        v('celular'),
+    telComercial:   v('telComercial'),
+    emailPessoal:   v('emailPessoal'),
+    emailProf:      v('emailProf'),
+    areaAtuacao:    areas,
+    nomeGerente:    cargoSelecionado==='Corretor(a)' ? v('nomeGerente') : '',
+    uf:             v('uf'),
+    cidade:         v('cidade'),
+    cep:            v('cep'),
+    bairro:         v('bairro'),
+    endereco:       v('endereco'),
+    numEndereco:    v('numEndereco'),
+    complemento:    v('complemento'),
+    creci:          v('creci'),
+    statusCreci:    v('statusCreci'),
+    banco:          v('banco'),
+    agencia:        v('agencia'),
+    conta:          v('conta'),
+    digitoConta:    v('digitoConta'),
+    tipoConta:      (document.querySelector('input[name="tipoConta"]:checked')||{value:''}).value,
+    tipoPix:        tipoPixSelecionado,
+    chavePix:       v('chavePix'),
+    favorecido:     v('favorecido'),
+    docFavorecido:  v('docFavorecido'),
+  };
+
+  const SHEET_URL='https://script.google.com/macros/s/AKfycbwORA9UNpzEcCODHwY8Hxj4UkWMpz3JugB29RfPEeo31x53zWWTg89z7k6H4mV_eRtuQw/exec';
+
+  try {
+    const params=new URLSearchParams(dados).toString();
+    await fetch(SHEET_URL+'?'+params,{method:'GET',mode:'no-cors'});
+    document.getElementById('nomeConfirmacao').textContent=v('nomeCompleto').split(' ')[0];
+    irParaStep(6);
+  } catch(err) {
+    btn.disabled=false; btn.innerHTML='Enviar Recadastramento ✓';
+    alert('Erro ao enviar. Verifique sua conexão e tente novamente.');
+  }
+}
+</script>
+</body>
+</html>

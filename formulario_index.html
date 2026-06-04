@@ -1,0 +1,1359 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recadastramento de Colaboradores</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --accent:     #C62828;
+  --accent-dk:  #8B0000;
+  --accent-lt:  #fce4e4;
+  --accent-brd: #ef9a9a;
+  --bg:         #f5f5f5;
+  --surface:    #ffffff;
+  --border:     #dadce0;
+  --border-foc: #C62828;
+  --text:       #202124;
+  --text2:      #5f6368;
+  --text3:      #9aa0a6;
+  --error:      #d93025;
+  --success:    #1e8e3e;
+  --radius:     8px;
+  --radius-sm:  4px;
+}
+
+body {
+  font-family: 'Segoe UI', 'Google Sans', Roboto, Arial, sans-serif;
+  font-size: 14px;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Progress bar (Google Forms style) ── */
+.progress-bar-wrap {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  height: 4px; background: #e0e0e0;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width .4s ease;
+  width: 0%;
+}
+
+/* ── Layout ── */
+.form-wrap {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 24px 12px 80px;
+}
+
+.step { display: none; }
+.step.active { display: block; }
+
+/* ══════════════════════════════════════════════════
+   CAPA
+══════════════════════════════════════════════════ */
+.cover-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border-top: 10px solid var(--accent);
+  box-shadow: 0 1px 3px rgba(0,0,0,.12), 0 2px 8px rgba(0,0,0,.08);
+  padding: 32px 28px 28px;
+  margin-bottom: 16px;
+}
+.cover-logo {
+  width: 56px; height: 56px; border-radius: 14px;
+  background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 24px;
+  box-shadow: 0 2px 8px rgba(198,40,40,.25);
+}
+.cover-badge {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 22px;
+  color: #888; font-size: 9.5px; font-weight: 600;
+  letter-spacing: 2px; text-transform: uppercase;
+}
+.cover-badge::before,
+.cover-badge::after {
+  content: ''; flex: 1; height: 1px; background: #d0d0d0;
+}
+.cover-title {
+  font-size: 26px; font-weight: 700;
+  color: var(--text); margin-bottom: 12px; line-height: 1.3;
+}
+.cover-desc {
+  font-size: 14px; color: var(--text2); line-height: 1.7; margin-bottom: 20px;
+}
+.cover-lgpd {
+  background: #fafafa;
+  border: 1px solid #e8e8e8;
+  border-radius: var(--radius-sm);
+  padding: 16px 18px; font-size: 13px; color: var(--text2); line-height: 1.65;
+  margin-bottom: 28px;
+}
+.lgpd-header {
+  display: flex; align-items: center; gap: 9px;
+  margin-bottom: 8px;
+}
+.lgpd-header-text {
+  font-size: 12px; font-weight: 700; color: var(--text);
+  letter-spacing: .3px; text-transform: uppercase;
+}
+.lgpd-body { font-size: 13px; color: var(--text2); line-height: 1.65; }
+
+.btn-start {
+  background: var(--accent);
+  color: #fff; border: none; border-radius: var(--radius-sm);
+  padding: 12px 28px; font-size: 14px; font-weight: 600;
+  cursor: pointer; font-family: inherit; letter-spacing: .25px;
+  transition: background .2s, box-shadow .2s;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-start:hover { background: var(--accent-dk); box-shadow: 0 2px 8px rgba(198,40,40,.4); }
+.cover-meta {
+  font-size: 13px; color: var(--text3); margin-top: 14px;
+  display: flex; align-items: center; gap: 5px;
+}
+
+/* ══════════════════════════════════════════════════
+   CARDS DE SEÇÃO
+══════════════════════════════════════════════════ */
+.section-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border-top: 10px solid var(--accent);
+  box-shadow: 0 1px 3px rgba(0,0,0,.12), 0 2px 8px rgba(0,0,0,.08);
+  padding: 24px 24px 20px;
+  margin-bottom: 16px;
+}
+.section-card-inner {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 3px rgba(0,0,0,.12), 0 2px 8px rgba(0,0,0,.08);
+  padding: 24px 24px 20px;
+  margin-bottom: 16px;
+}
+.section-title {
+  font-size: 22px; font-weight: 400; color: var(--text);
+  margin-bottom: 4px; line-height: 1.3;
+}
+.section-subtitle {
+  font-size: 13px; color: var(--text2); margin-bottom: 0;
+}
+.section-divider { height: 1px; background: var(--border); margin: 20px -24px; }
+
+/* Sub-seção (PIX, Favorecido) */
+.subsection-title {
+  font-size: 13px; font-weight: 600; color: var(--accent);
+  text-transform: uppercase; letter-spacing: .8px;
+  margin: 24px 0 16px;
+  display: flex; align-items: center; gap: 8px;
+}
+.subsection-title::after { content:''; flex:1; height:1px; background: var(--accent-brd); opacity:.5; }
+
+/* ══════════════════════════════════════════════════
+   CAMPOS — GOOGLE FORMS STYLE
+══════════════════════════════════════════════════ */
+.field { margin-bottom: 24px; }
+.field:last-child { margin-bottom: 0; }
+
+.field-label {
+  font-size: 14px; font-weight: 500; color: var(--text);
+  margin-bottom: 8px; line-height: 1.4;
+  display: block;
+}
+.field-label .req { color: var(--error); margin-left: 2px; font-weight: 600; }
+.field-label .opt { color: var(--text3); font-weight: 400; font-size: 13px; margin-left: 4px; }
+.field-desc { font-size: 12px; color: var(--text2); margin-bottom: 10px; line-height: 1.5; }
+.field-hint { font-size: 12px; color: var(--text3); margin-top: 6px; line-height: 1.5; }
+
+/* Inputs — estilo Forms: borda completa, foco colorido */
+.f-input, .f-select {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font-size: 14px; color: var(--text);
+  background: #fff; outline: none;
+  transition: border-color .15s;
+  font-family: inherit; appearance: none; -webkit-appearance: none;
+}
+.f-input::placeholder { color: var(--text3); }
+.f-input:focus, .f-select:focus {
+  border-color: var(--border-foc);
+  border-width: 2px;
+  padding: 9px 11px; /* compensa a borda 2px */
+}
+.f-input.has-error { border-color: var(--error); border-width: 2px; padding: 9px 11px; }
+.f-input.has-success { border-color: var(--success); }
+
+/* Select arrow */
+.f-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%235f6368'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center;
+  padding-right: 32px; cursor: pointer;
+}
+
+/* Radio / Checkbox — Google Forms style */
+.gf-options { display: flex; flex-direction: column; gap: 4px; }
+.gf-options.horizontal { flex-direction: row; flex-wrap: wrap; gap: 8px; }
+
+.gf-option {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer; transition: background .15s;
+  font-size: 14px; color: var(--text);
+  user-select: none;
+}
+.gf-option:hover { background: #f1f3f4; }
+.gf-option.selected { background: var(--accent-lt); border-color: var(--accent-brd); }
+.gf-option:focus-within { outline: 2px solid var(--accent); outline-offset: 1px; }
+.gf-option input { opacity: 0; position: absolute; width: 0; height: 0; margin: 0; }
+
+/* Radio dot */
+.gf-radio {
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 2px solid #5f6368; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: border-color .15s;
+}
+.gf-option.selected .gf-radio { border-color: var(--accent); }
+.gf-radio-inner {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--accent); opacity: 0; transition: opacity .15s;
+}
+.gf-option.selected .gf-radio-inner { opacity: 1; }
+
+/* Checkbox dot */
+.gf-check {
+  width: 18px; height: 18px; border-radius: 2px;
+  border: 2px solid #5f6368; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s, border-color .15s;
+  font-size: 12px; font-weight: 700; color: #fff;
+}
+.gf-option.selected .gf-check { background: var(--accent); border-color: var(--accent); }
+.gf-option.selected .gf-check::after { content: '✓'; }
+
+/* Cidade autocomplete */
+.cidade-wrap { position: relative; }
+.cidade-spinner {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  width: 16px; height: 16px; display: none;
+  border: 2px solid #e0e0e0; border-top-color: var(--accent);
+  border-radius: 50%; animation: spin .7s linear infinite; pointer-events: none;
+}
+.cidade-spinner.show { display: block; }
+@keyframes spin { to { transform: translateY(-50%) rotate(360deg); } }
+.ac-dropdown {
+  position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 300;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 4px 16px rgba(0,0,0,.12);
+  max-height: 220px; overflow-y: auto;
+  display: none;
+}
+.ac-dropdown.open { display: block; }
+.ac-item {
+  padding: 10px 14px; font-size: 14px; color: var(--text);
+  cursor: pointer; transition: background .1s;
+}
+.ac-item:hover, .ac-item.active { background: var(--accent-lt); color: var(--accent-dk); }
+.ac-empty { padding: 10px 14px; font-size: 13px; color: var(--text3); }
+
+/* CPF status */
+.cpf-status { font-size: 12px; margin-top: 6px; display: none; }
+.cpf-status.valid   { display:block; color: var(--success); }
+.cpf-status.invalid { display:block; color: var(--error); }
+
+/* Erros */
+.field-error { font-size: 12px; color: var(--error); margin-top: 6px; display: none; align-items: center; gap: 4px; }
+.field-error.show { display: flex; }
+.field-error::before { content: '⚠'; font-size: 11px; }
+
+/* Aceite */
+.aceite-wrap {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 16px;
+  display: flex; align-items: flex-start; gap: 12px;
+  cursor: pointer; transition: border-color .15s, background .15s;
+}
+.aceite-wrap:hover { background: #f8f8f8; }
+.aceite-wrap.checked { border-color: var(--accent); background: var(--accent-lt); }
+.aceite-wrap input { display: none; }
+.aceite-check {
+  width: 20px; height: 20px; min-width: 20px; border-radius: 3px;
+  border: 2px solid #5f6368;
+  display: flex; align-items: center; justify-content: center;
+  margin-top: 1px; font-size: 12px; font-weight: 800; color: #fff;
+  transition: background .15s, border-color .15s;
+}
+.aceite-check.checked { background: var(--accent); border-color: var(--accent); }
+.aceite-text { font-size: 14px; color: var(--text2); line-height: 1.6; }
+
+/* Condicional */
+.cond-field.hidden { display: none; }
+
+/* ══════════════════════════════════════════════════
+   NAVEGAÇÃO — Microsoft Forms style
+══════════════════════════════════════════════════ */
+.nav-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 3px rgba(0,0,0,.12);
+  padding: 16px 24px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.step-counter { font-size: 13px; color: var(--text3); white-space: nowrap; }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  border: none; border-radius: var(--radius-sm);
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  padding: 10px 22px; font-family: inherit; transition: all .2s;
+}
+.btn-back { background: transparent; color: var(--accent); border: 1px solid var(--accent-brd); }
+.btn-back:hover { background: var(--accent-lt); }
+.btn-next { background: var(--accent); color: #fff; }
+.btn-next:hover { background: var(--accent-dk); }
+.btn-submit {
+  width: 100%; justify-content: center;
+  background: var(--accent); color: #fff;
+  font-size: 15px; padding: 13px;
+  border-radius: var(--radius-sm); margin-top: 16px;
+  border: none; cursor: pointer; font-family: inherit; font-weight: 600;
+  transition: background .2s;
+}
+.btn-submit:hover { background: var(--accent-dk); }
+
+/* ══════════════════════════════════════════════════
+   SUCESSO
+══════════════════════════════════════════════════ */
+.success-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border-top: 10px solid var(--success);
+  box-shadow: 0 1px 3px rgba(0,0,0,.12), 0 2px 8px rgba(0,0,0,.08);
+  padding: 48px 28px; text-align: center;
+  margin-top: 24px;
+}
+.success-icon {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: #e6f4ea; border: 2px solid #a8d5b1;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; margin: 0 auto 20px;
+  animation: popIn .4s cubic-bezier(.175,.885,.32,1.275);
+}
+@keyframes popIn { from{transform:scale(0);opacity:0;} to{transform:scale(1);opacity:1;} }
+.success-title { font-size: 22px; font-weight: 600; margin-bottom: 10px; color: var(--text); }
+.success-desc { font-size: 14px; color: var(--text2); line-height: 1.7; }
+
+/* Spinner */
+.spinner { display:inline-block; width:14px; height:14px; border:2px solid rgba(255,255,255,.4); border-top-color:#fff; border-radius:50%; animation:spin .8s linear infinite; vertical-align:middle; }
+
+/* ══════════════════════════════════════════════════
+   RESPONSIVO
+══════════════════════════════════════════════════ */
+@media(max-width:600px) {
+  .form-wrap { padding: 16px 8px 80px; }
+  .section-card, .section-card-inner, .cover-card { padding: 20px 16px; }
+  .section-divider { margin: 16px -16px; }
+  .nav-card { padding: 14px 16px; flex-wrap: wrap; gap: 10px; }
+  .step-counter { order: -1; width: 100%; text-align: center; }
+  .btn { padding: 10px 16px; }
+  .gf-options.horizontal { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<div class="progress-bar-wrap">
+  <div class="progress-bar-fill" id="progressBar"></div>
+</div>
+
+<div class="form-wrap">
+
+<!-- ══ STEP 0 — CAPA ══ -->
+<div class="step active" id="step-0">
+  <div class="cover-card">
+
+    <!-- Ícone -->
+    <div class="cover-logo">
+      <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Cabeça -->
+        <circle cx="15" cy="9" r="5.5" fill="white"/>
+        <!-- Corpo -->
+        <path d="M4 28c0-6.075 4.925-11 11-11s11 4.925 11 11" stroke="white" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+
+    <!-- Badge confidencial -->
+    <div class="cover-badge">
+      Confidencial &nbsp;·&nbsp; Uso Interno
+    </div>
+
+    <h1 class="cover-title">Recadastramento de Colaboradores</h1>
+    <p class="cover-desc">
+      Prezado(a) colaborador(a), bem-vindo(a).<br><br>
+      Este formulário é parte do nosso processo de auditoria e governança interna.
+      O objetivo é garantir que todas as suas informações profissionais, pessoais e bancárias
+      estejam corretas e padronizadas em nossa base de dados administrativa.<br>
+      O preenchimento é obrigatório e levará apenas alguns minutos.
+    </p>
+
+    <!-- Aviso LGPD -->
+    <div class="cover-lgpd">
+      <div class="lgpd-header">
+        <svg width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M7 0L0 2.8V7.6C0 11.648 3.024 15.43 7 16C10.976 15.43 14 11.648 14 7.6V2.8L7 0Z" fill="#C62828" opacity=".18"/>
+          <path d="M7 1.2L1 3.6V7.6C1 11.1 3.6 14.4 7 15C10.4 14.4 13 11.1 13 7.6V3.6L7 1.2Z" stroke="#C62828" stroke-width="1.2" fill="none"/>
+          <path d="M4.5 8L6.2 9.8L9.5 6.5" stroke="#C62828" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="lgpd-header-text">Aviso de Privacidade - LGPD</span>
+      </div>
+      <p class="lgpd-body">
+        Seus dados são coletados em ambiente seguro com criptografia SSL/TLS e
+        armazenados com acesso restrito ao departamento pessoal e à diretoria,
+        em conformidade com a Lei nº 13.709/2018.
+      </p>
+    </div>
+
+    <div style="text-align:center">
+      <button class="btn-start" onclick="irParaStep(1)">Começar preenchimento →</button>
+      <div class="cover-meta" style="justify-content:center">⏱ Aproximadamente 3 minutos</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ STEP 1 — CARGO ══ -->
+<div class="step" id="step-1">
+  <div class="section-card">
+    <div class="section-title">Identificação</div>
+    <div class="section-subtitle">Etapa 1 de 5</div>
+    <div class="section-divider"></div>
+
+    <div class="field">
+      <label class="field-label">Cargo / Função <span class="req">*</span></label>
+      <p class="field-desc">Sua escolha determina quais campos serão exibidos a seguir.</p>
+      <div class="gf-options" id="cargoChoices">
+        <label class="gf-option" onclick="selecionarCargo(this,'Administrativo')">
+          <input type="radio" name="cargo" value="Administrativo" onchange="syncGfOption(this)">
+          <div class="gf-radio"><div class="gf-radio-inner"></div></div>Administrativo
+        </label>
+        <label class="gf-option" onclick="selecionarCargo(this,'Corretor(a)')">
+          <input type="radio" name="cargo" value="Corretor(a)" onchange="syncGfOption(this)">
+          <div class="gf-radio"><div class="gf-radio-inner"></div></div>Corretor(a)
+        </label>
+        <label class="gf-option" onclick="selecionarCargo(this,'Diretoria')">
+          <input type="radio" name="cargo" value="Diretoria" onchange="syncGfOption(this)">
+          <div class="gf-radio"><div class="gf-radio-inner"></div></div>Diretoria
+        </label>
+        <label class="gf-option" onclick="selecionarCargo(this,'Gerente')">
+          <input type="radio" name="cargo" value="Gerente" onchange="syncGfOption(this)">
+          <div class="gf-radio"><div class="gf-radio-inner"></div></div>Gerente
+        </label>
+        <label class="gf-option" onclick="selecionarCargo(this,'Outros')">
+          <input type="radio" name="cargo" value="Outros" onchange="syncGfOption(this)">
+          <div class="gf-radio"><div class="gf-radio-inner"></div></div>Outros
+        </label>
+      </div>
+      <div class="field-error" id="err-cargo">Selecione seu cargo para continuar.</div>
+    </div>
+  </div>
+
+  <div class="nav-card">
+    <button class="btn btn-back" onclick="irParaStep(0)">← Voltar</button>
+    <span class="step-counter">Etapa 1 de 5</span>
+    <button class="btn btn-next" onclick="avancarStep1()">Próximo →</button>
+  </div>
+</div>
+
+<!-- ══ STEP 2 — DADOS PESSOAIS ══ -->
+<div class="step" id="step-2">
+  <div class="section-card">
+    <div class="section-title">Dados Pessoais</div>
+    <div class="section-subtitle" id="subtituloCargo">Etapa 2 de 5</div>
+    <div class="section-divider"></div>
+
+    <!-- Nome Completo -->
+    <div class="field">
+      <label class="field-label" for="nomeCompleto">Nome Completo <span class="req">*</span></label>
+      <input class="f-input" type="text" id="nomeCompleto" maxlength="60"
+        placeholder="Digite seu nome completo" oninput="limparErro('nomeCompleto')">
+      <div class="field-error" id="err-nomeCompleto">Nome completo é obrigatório.</div>
+    </div>
+
+    <!-- CPF -->
+    <div class="field">
+      <label class="field-label" for="cpf">CPF <span class="req">*</span></label>
+      <input class="f-input" type="text" id="cpf" maxlength="14"
+        placeholder="000.000.000-00" inputmode="numeric"
+        oninput="aplicarMascaraCPF(this)" onblur="validarCPFCampo()">
+      <div class="cpf-status" id="cpf-ok">✓ CPF válido</div>
+      <div class="cpf-status" id="cpf-err">✗ CPF inválido</div>
+      <div class="field-error" id="err-cpf">CPF é obrigatório.</div>
+    </div>
+
+    <!-- RG -->
+    <div class="field">
+      <label class="field-label" for="rg">RG <span class="req">*</span></label>
+      <input class="f-input" type="text" id="rg" maxlength="20"
+        placeholder="Número do RG" oninput="limparErro('rg')">
+      <div class="field-error" id="err-rg">RG é obrigatório.</div>
+    </div>
+
+    <!-- Data de Nascimento -->
+    <div class="field">
+      <label class="field-label" for="dataNascimento">Data de Nascimento <span class="req">*</span></label>
+      <input class="f-input" type="text" id="dataNascimento" maxlength="10"
+        placeholder="DD/MM/AAAA" inputmode="numeric"
+        oninput="aplicarMascaraData(this)" onblur="validarData()">
+      <div class="field-error" id="err-dataNascimento">Data inválida. Use o formato DD/MM/AAAA.</div>
+    </div>
+
+    <!-- Sexo -->
+    <div class="field">
+      <label class="field-label">Sexo <span class="req">*</span></label>
+      <div class="gf-options horizontal" id="sexoChoices">
+        <label class="gf-option" onclick="selecionarChoice(this,'sexoChoices','err-sexo')">
+          <input type="radio" name="sexo" value="Feminino" onchange="syncGfOption(this)">
+          <div class="gf-radio"><div class="gf-radio-inner"></div></div>Feminino
+        </label>
+        <label class="gf-option" onclick="selecionarChoice(this,'sexoChoices','err-sexo')">
+          <input type="radio" name="sexo" value="Masculino" onchange="syncGfOption(this)">
+          <div class="gf-radio"><div class="gf-radio-inner"></div></div>Masculino
+        </label>
+      </div>
+      <div class="field-error" id="err-sexo">Sexo é obrigatório.</div>
+    </div>
+
+    <!-- Estado Civil -->
+    <div class="field">
+      <label class="field-label" for="estadoCivil">Estado Civil <span class="req">*</span></label>
+      <select class="f-select" id="estadoCivil" onchange="limparErro('estadoCivil')">
+        <option value="">Selecione</option>
+        <option>Solteiro(a)</option>
+        <option>Casado(a)</option>
+        <option>Divorciado(a)</option>
+        <option>Viúvo(a)</option>
+        <option>Separado(a) Judicialmente</option>
+      </select>
+      <div class="field-error" id="err-estadoCivil">Selecione o estado civil.</div>
+    </div>
+
+    <!-- Celular -->
+    <div class="field">
+      <label class="field-label" for="celular">Celular <span class="req">*</span></label>
+      <input class="f-input" type="text" id="celular" maxlength="15"
+        placeholder="(00) 00000-0000" inputmode="numeric"
+        oninput="aplicarMascaraTel(this)" onblur="validarTel(this,'err-celular')">
+      <div class="field-error" id="err-celular">Celular inválido. Use (00) 00000-0000.</div>
+    </div>
+
+    <!-- Telefone Comercial -->
+    <div class="field">
+      <label class="field-label" for="telComercial">Telefone Comercial</label>
+      <input class="f-input" type="text" id="telComercial" maxlength="15"
+        placeholder="(00) 00000-0000" inputmode="numeric"
+        oninput="aplicarMascaraTel(this)">
+    </div>
+
+    <!-- E-mail Pessoal -->
+    <div class="field">
+      <label class="field-label" for="emailPessoal">E-mail Pessoal <span id="emailPessoalLabel" class="req">*</span></label>
+      <input class="f-input" type="email" id="emailPessoal"
+        placeholder="email@gmail.com"
+        oninput="limparErro('emailPessoal')" onblur="validarEmail(this,'err-emailPessoal')">
+      <div class="field-error" id="err-emailPessoal">E-mail inválido.</div>
+    </div>
+
+    <!-- E-mail Profissional -->
+    <div class="field">
+      <label class="field-label" for="emailProf">E-mail Profissional</label>
+      <input class="f-input" type="email" id="emailProf"
+        placeholder="email@empresa.com.br"
+        onblur="validarEmail(this,'err-emailProf')">
+      <div class="field-error" id="err-emailProf">E-mail inválido.</div>
+    </div>
+
+    <!-- Área de Atuação (Corretor) -->
+    <div class="cond-field hidden field" id="campo-areaAtuacao">
+      <label class="field-label">Área de Atuação <span class="req">*</span></label>
+      <p class="field-desc">Exclusivo para Corretor(a) — selecione uma ou ambas as opções.</p>
+      <div class="gf-options horizontal" id="areaAtuacaoChoices">
+        <label class="gf-option" onclick="selecionarCheckbox(this,'areaAtuacaoChoices')">
+          <input type="checkbox" name="areaAtuacao" value="Venda">
+          <div class="gf-check"></div>Venda
+        </label>
+        <label class="gf-option" onclick="selecionarCheckbox(this,'areaAtuacaoChoices')">
+          <input type="checkbox" name="areaAtuacao" value="Locação">
+          <div class="gf-check"></div>Locação
+        </label>
+      </div>
+      <div class="field-error" id="err-areaAtuacao">Área de Atuação é obrigatória para Corretor(a).</div>
+    </div>
+
+    <!-- Nome da Equipe / Gerente (Corretor) -->
+    <div class="cond-field hidden field" id="campo-nomeGerente">
+      <label class="field-label" for="nomeGerente">Nome da Equipe / Gerente Responsável <span class="req">*</span></label>
+      <p class="field-desc">Exclusivo para Corretor(a).</p>
+      <input class="f-input" type="text" id="nomeGerente" maxlength="60"
+        placeholder="Nome completo da Equipe/Gerente" oninput="limparErro('nomeGerente')">
+      <div class="field-error" id="err-nomeGerente">Nome da Equipe/Gerente é obrigatório para Corretor(a).</div>
+    </div>
+  </div>
+
+  <div class="nav-card">
+    <button class="btn btn-back" onclick="irParaStep(1)">← Voltar</button>
+    <span class="step-counter">Etapa 2 de 5</span>
+    <button class="btn btn-next" onclick="avancarStep2()">Próximo →</button>
+  </div>
+</div>
+
+<!-- ══ STEP 3 — ENDEREÇO ══ -->
+<div class="step" id="step-3">
+  <div class="section-card">
+    <div class="section-title">Endereço Residencial</div>
+    <div class="section-subtitle">Etapa 3 de 5</div>
+    <div class="section-divider"></div>
+
+    <!-- UF -->
+    <div class="field">
+      <label class="field-label" for="uf">UF (Estado) <span class="req">*</span></label>
+      <select class="f-select" id="uf" onchange="carregarCidades()">
+        <option value="">Selecione o estado</option>
+        <option>AC</option><option>AL</option><option>AP</option><option>AM</option>
+        <option>BA</option><option>CE</option><option>DF</option><option>ES</option>
+        <option>GO</option><option>MA</option><option>MT</option><option>MS</option>
+        <option>MG</option><option>PA</option><option>PB</option><option>PR</option>
+        <option>PE</option><option>PI</option><option>RJ</option><option>RN</option>
+        <option>RS</option><option>RO</option><option>RR</option><option>SC</option>
+        <option>SP</option><option>SE</option><option>TO</option>
+      </select>
+      <div class="field-error" id="err-uf">Selecione o estado.</div>
+    </div>
+
+    <!-- Cidade -->
+    <div class="field">
+      <label class="field-label" for="cidade">Cidade <span class="req">*</span></label>
+      <div class="cidade-wrap">
+        <input class="f-input" type="text" id="cidade"
+          placeholder="Selecione o estado primeiro"
+          disabled autocomplete="off"
+          oninput="filtrarCidades()" onblur="fecharAcDropdown()" onfocus="filtrarCidades()">
+        <div class="cidade-spinner" id="cidadeSpinner"></div>
+        <div class="ac-dropdown" id="ac-dropdown"></div>
+      </div>
+      <div class="field-error" id="err-cidade">Informe a cidade.</div>
+    </div>
+
+    <!-- CEP -->
+    <div class="field">
+      <label class="field-label" for="cep">CEP <span class="req">*</span></label>
+      <input class="f-input" type="text" id="cep" maxlength="9"
+        placeholder="00000-000" inputmode="numeric"
+        oninput="aplicarMascaraCEP(this)" onblur="limparErro('cep')">
+      <div class="field-error" id="err-cep">CEP inválido. Use o formato 00000-000.</div>
+    </div>
+
+    <!-- Bairro -->
+    <div class="field">
+      <label class="field-label" for="bairro">Bairro <span class="req">*</span></label>
+      <input class="f-input" type="text" id="bairro" maxlength="100"
+        placeholder="Nome do bairro" oninput="limparErro('bairro')">
+      <div class="field-error" id="err-bairro">Bairro é obrigatório.</div>
+    </div>
+
+    <!-- Endereço -->
+    <div class="field">
+      <label class="field-label" for="endereco">Endereço <span class="req">*</span></label>
+      <input class="f-input" type="text" id="endereco" maxlength="100"
+        placeholder="Rua, Avenida, Travessa..." oninput="limparErro('endereco')">
+      <div class="field-error" id="err-endereco">Endereço é obrigatório.</div>
+    </div>
+
+    <!-- Número -->
+    <div class="field">
+      <label class="field-label" for="numEndereco">Número <span class="req">*</span></label>
+      <input class="f-input" type="text" id="numEndereco" maxlength="5"
+        placeholder="Ex: 123" inputmode="numeric"
+        onkeypress="return /[0-9]/.test(event.key)" oninput="limparErro('numEndereco')">
+      <div class="field-error" id="err-numEndereco">Número inválido.</div>
+    </div>
+
+    <!-- Complemento -->
+    <div class="field">
+      <label class="field-label" for="complemento">Complemento</label>
+      <input class="f-input" type="text" id="complemento" maxlength="50"
+        placeholder="Apto, Sala, Bloco, Torre...">
+    </div>
+  </div>
+
+  <!-- CRECI condicional -->
+  <div class="cond-field hidden" id="secao-creci">
+    <div class="section-card-inner">
+      <div class="section-title" style="font-size:18px">Registro CRECI</div>
+      <div class="section-subtitle">Opcional — Corretor(a), Gerente e Diretoria</div>
+      <div class="section-divider"></div>
+
+      <div class="field">
+        <label class="field-label" for="creci">Número do CRECI</label>
+        <input class="f-input" type="text" id="creci" maxlength="10"
+          inputmode="numeric"
+          onkeypress="return /[0-9]/.test(event.key)" oninput="verificarCRECI()">
+        <div class="field-hint">Apenas dígitos</div>
+      </div>
+
+      <div class="cond-field hidden field" id="campo-statusCreci">
+        <label class="field-label" for="statusCreci">Status CRECI</label>
+        <select class="f-select" id="statusCreci">
+          <option value="">Selecione</option>
+          <option>Ativo</option>
+          <option>Cancelado</option>
+          <option>Inativo</option>
+          <option>Suspenso</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-card">
+    <button class="btn btn-back" onclick="irParaStep(2)">← Voltar</button>
+    <span class="step-counter">Etapa 3 de 5</span>
+    <button class="btn btn-next" onclick="avancarStep3()">Próximo →</button>
+  </div>
+</div>
+
+<!-- ══ STEP 4 — BANCÁRIO + PIX ══ -->
+<div class="step" id="step-4">
+  <div class="section-card">
+    <div class="section-title">Dados Bancários</div>
+    <div class="section-subtitle">Etapa 4 de 5</div>
+    <div class="section-divider"></div>
+
+    <!-- Banco -->
+    <div class="field">
+      <label class="field-label" for="banco">Banco <span class="req">*</span></label>
+      <select class="f-select" id="banco" onchange="limparErro('banco')">
+        <option value="">Selecione o banco</option>
+        <optgroup label="── Principais ──">
+          <option>001 – Banco do Brasil S.A.</option>
+          <option>033 – Banco Santander (Brasil) S.A.</option>
+          <option>104 – Caixa Econômica Federal</option>
+          <option>237 – Banco Bradesco S.A.</option>
+          <option>341 – Itaú Unibanco S.A.</option>
+          <option>260 – Nu Pagamentos S.A. (Nubank)</option>
+          <option>077 – Banco Inter S.A.</option>
+          <option>336 – Banco C6 S.A.</option>
+          <option>290 – PagSeguro Internet S.A.</option>
+          <option>323 – Mercado Pago</option>
+        </optgroup>
+        <optgroup label="── Outros (por código) ──">
+          <option>003 – Banco da Amazônia S.A.</option>
+          <option>004 – Banco do Nordeste do Brasil S.A.</option>
+          <option>021 – Banestes S.A.</option>
+          <option>025 – Banco Alfa S.A.</option>
+          <option>036 – Banco Bradesco BBI S.A.</option>
+          <option>041 – Banco do Estado do RS S.A. (Banrisul)</option>
+          <option>047 – Banco do Estado de Sergipe S.A.</option>
+          <option>069 – Banco Crefisa S.A.</option>
+          <option>070 – BRB – Banco de Brasília S.A.</option>
+          <option>085 – Cooperativa Central de Crédito – AILOS</option>
+          <option>097 – Credisis</option>
+          <option>099 – Uniprime Central</option>
+          <option>136 – Unicred do Brasil</option>
+          <option>197 – Stone Pagamentos S.A.</option>
+          <option>208 – Banco BTG Pactual S.A.</option>
+          <option>212 – Banco Original S.A.</option>
+          <option>218 – Banco BS2 S.A.</option>
+          <option>246 – Banco ABC Brasil S.A.</option>
+          <option>318 – Banco BMG S.A.</option>
+          <option>348 – Banco XP S.A.</option>
+          <option>380 – PicPay Serviços S.A.</option>
+          <option>389 – Banco Mercantil do Brasil S.A.</option>
+          <option>422 – Banco Safra S.A.</option>
+          <option>505 – Banco Credit Suisse (Brasil) S.A.</option>
+          <option>633 – Banco Rendimento S.A.</option>
+          <option>637 – Banco Sofisa S.A.</option>
+          <option>707 – Banco Daycoval S.A.</option>
+          <option>735 – Banco Neon S.A.</option>
+          <option>745 – Citibank N.A.</option>
+          <option>748 – Sicredi</option>
+          <option>756 – Bancoob / Sicoob</option>
+        </optgroup>
+      </select>
+      <div class="field-error" id="err-banco">Selecione o banco.</div>
+    </div>
+
+    <!-- Agência -->
+    <div class="field">
+      <label class="field-label" for="agencia">Agência <span class="req">*</span></label>
+      <input class="f-input" type="text" id="agencia" maxlength="4"
+        placeholder="0000" inputmode="numeric"
+        onkeypress="return /[0-9]/.test(event.key)"
+        oninput="this.value=this.value.replace(/\D/g,'');limparErro('agencia')"
+        onblur="padAgencia()">
+      <div class="field-hint">Até 4 dígitos — zeros preenchidos automaticamente</div>
+      <div class="field-error" id="err-agencia">Agência inválida.</div>
+    </div>
+
+    <!-- Conta -->
+    <div class="field">
+      <label class="field-label" for="conta">Conta <span class="req">*</span></label>
+      <input class="f-input" type="text" id="conta" maxlength="15"
+        placeholder="000000000000000" inputmode="numeric"
+        onkeypress="return /[0-9]/.test(event.key)"
+        oninput="this.value=this.value.replace(/\D/g,'');limparErro('conta')">
+      <div class="field-hint">Apenas dígitos, até 15 caracteres</div>
+      <div class="field-error" id="err-conta">Conta inválida.</div>
+    </div>
+
+    <!-- Dígito da Conta -->
+    <div class="field">
+      <label class="field-label" for="digitoConta">Dígito da Conta <span class="req">*</span></label>
+      <input class="f-input" type="text" id="digitoConta" maxlength="1"
+        placeholder="0" oninput="limparErro('digitoConta')">
+      <div class="field-error" id="err-digitoConta">Dígito é obrigatório.</div>
+    </div>
+
+    <!-- Tipo de Conta -->
+    <div class="field">
+      <label class="field-label" for="tipoConta">Tipo de Conta <span class="req">*</span></label>
+      <select class="f-select" id="tipoConta" onchange="limparErro('tipoConta')">
+        <option value="">Selecione o tipo</option>
+        <option>Conta-Corrente</option>
+        <option>Conta Digital</option>
+        <option>Conta Pagamento</option>
+        <option>Conta PJ</option>
+        <option>Conta Poupança</option>
+        <option>Conta Salário</option>
+      </select>
+      <div class="field-error" id="err-tipoConta">Selecione o tipo de conta.</div>
+    </div>
+
+    <!-- Seção PIX -->
+    <div class="subsection-title">Chave PIX</div>
+
+    <div class="field">
+      <label class="field-label">Tipo de Chave PIX <span class="opt">(opcional)</span></label>
+      <div class="gf-options horizontal" id="tipoPixChoices">
+        <label class="gf-option" onclick="selecionarTipoPix(this,'CPF')">
+          <input type="radio" name="tipoPix" value="CPF">
+          <div class="gf-radio"><div class="gf-radio-inner"></div></div>CPF
+        </label>
+        <label class="gf-option" onclick="selecionarTipoPix(this,'Celular')">
+          <input type="radio" name="tipoPix" value="Celular">
+          <div class="gf-radio"><div class="gf-radio-inner"></div></div>Celular
+        </label>
+        <label class="gf-option" onclick="selecionarTipoPix(this,'E-mail')">
+          <input type="radio" name="tipoPix" value="E-mail">
+          <div class="gf-radio"><div class="gf-radio-inner"></div></div>E-mail
+        </label>
+      </div>
+    </div>
+
+    <div class="cond-field hidden field" id="campo-chavePix">
+      <label class="field-label" for="chavePix">Chave PIX <span class="req">*</span></label>
+      <input class="f-input" type="text" id="chavePix" maxlength="18"
+        oninput="validarChavePix()" onblur="validarChavePixBlur()">
+      <div class="field-hint" id="pixFormatoHint"></div>
+      <div class="field-error" id="err-chavePix">Chave PIX inválida para o tipo selecionado.</div>
+    </div>
+
+    <!-- Seção Favorecido -->
+    <div class="subsection-title">Favorecido</div>
+
+    <div class="field">
+      <label class="field-label" for="favorecido">Nome do Favorecido</label>
+      <input class="f-input" type="text" id="favorecido" maxlength="60"
+        placeholder="Nome completo do favorecido">
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="docFavorecido">CPF / CNPJ do Favorecido</label>
+      <input class="f-input" type="text" id="docFavorecido" maxlength="60"
+        placeholder="000.000.000-00 ou 00.000.000/0000-00">
+    </div>
+  </div>
+
+  <div class="nav-card">
+    <button class="btn btn-back" onclick="irParaStep(3)">← Voltar</button>
+    <span class="step-counter">Etapa 4 de 5</span>
+    <button class="btn btn-next" onclick="avancarStep4()">Próximo →</button>
+  </div>
+</div>
+
+<!-- ══ STEP 5 — ACEITE + ENVIO ══ -->
+<div class="step" id="step-5">
+  <div class="section-card">
+    <div class="section-title">Confirmação e Envio</div>
+    <div class="section-subtitle">Etapa 5 de 5 · Última etapa</div>
+    <div class="section-divider"></div>
+
+    <p style="font-size:14px;color:var(--text2);margin-bottom:20px;line-height:1.6">
+      Antes de enviar, confirme que todas as informações preenchidas estão corretas
+      e leia o termo de aceite abaixo.
+    </p>
+
+    <div class="field">
+      <label class="field-label">Termo de Aceite <span class="req">*</span></label>
+      <label class="aceite-wrap" id="aceiteWrap" onclick="toggleAceite()">
+        <input type="checkbox" id="aceite">
+        <div class="aceite-check" id="aceiteCheck"></div>
+        <span class="aceite-text">
+          Declaro que as informações fornecidas são verdadeiras e consinto com o tratamento
+          dos meus dados pessoais para as finalidades descritas, em conformidade com a LGPD
+          (Lei nº 13.709/2018).
+        </span>
+      </label>
+      <div class="field-error" id="err-aceite">Por favor, aceite os termos para enviar.</div>
+    </div>
+
+    <button class="btn-submit" onclick="enviarFormulario()" id="btnEnviar">
+      Enviar Recadastramento ✓
+    </button>
+  </div>
+
+  <div class="nav-card">
+    <button class="btn btn-back" onclick="irParaStep(4)">← Voltar</button>
+    <span class="step-counter">Etapa 5 de 5</span>
+    <div></div>
+  </div>
+</div>
+
+<!-- ══ STEP 6 — SUCESSO ══ -->
+<div class="step" id="step-6">
+  <div class="success-card">
+    <div class="success-icon">✓</div>
+    <h2 class="success-title">Recadastramento enviado!</h2>
+    <p class="success-desc">
+      Obrigado(a), <strong id="nomeConfirmacao"></strong>.<br><br>
+      Suas informações foram recebidas com sucesso.<br>
+      Em caso de dúvidas, contate o Departamento Pessoal.
+    </p>
+  </div>
+</div>
+
+</div><!-- /form-wrap -->
+
+<script>
+let cargoSelecionado = '';
+let tipoPixSelecionado = '';
+
+// ── Sync visual ao navegar pelo teclado ──
+function syncGfOption(input) {
+  const group = input.closest('.gf-options');
+  if (!group) return;
+  group.querySelectorAll('.gf-option').forEach(opt => opt.classList.remove('selected'));
+  input.closest('.gf-option').classList.add('selected');
+  // Para cargo, atualiza também a variável
+  if (input.name === 'cargo') {
+    cargoSelecionado = input.value;
+    esconderErro('err-cargo');
+  }
+  if (input.name === 'tipoPix') {
+    selecionarTipoPix(input.closest('.gf-option'), input.value);
+  }
+}
+
+// ── Navegação ──
+function irParaStep(n) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step-' + n).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  document.getElementById('progressBar').style.width =
+    (n === 0 ? 0 : Math.round((n / 5) * 100)) + '%';
+}
+
+// ── Aceite ──
+function toggleAceite() {
+  const cb = document.getElementById('aceite');
+  const ch = document.getElementById('aceiteCheck');
+  const wrap = document.getElementById('aceiteWrap');
+  cb.checked = !cb.checked;
+  ch.classList.toggle('checked', cb.checked);
+  wrap.classList.toggle('checked', cb.checked);
+  ch.textContent = cb.checked ? '✓' : '';
+  esconderErro('err-aceite');
+}
+
+// ── Cargo ──
+function selecionarCargo(el, valor) {
+  document.querySelectorAll('#cargoChoices .gf-option').forEach(i => i.classList.remove('selected'));
+  el.classList.add('selected');
+  el.querySelector('input').checked = true;
+  cargoSelecionado = valor;
+  esconderErro('err-cargo');
+}
+
+// ── Choice radio genérico ──
+function selecionarChoice(el, groupId, errId) {
+  document.querySelectorAll('#' + groupId + ' .gf-option').forEach(i => i.classList.remove('selected'));
+  el.classList.add('selected');
+  el.querySelector('input').checked = true;
+  if (errId) esconderErro(errId);
+}
+
+// ── Checkbox múltiplo ──
+function selecionarCheckbox(el, groupId) {
+  const cb = el.querySelector('input[type=checkbox]');
+  cb.checked = !cb.checked;
+  el.classList.toggle('selected', cb.checked);
+  esconderErro('err-areaAtuacao');
+}
+
+// ── Step 1 → 2 ──
+function avancarStep1() {
+  if (!cargoSelecionado) { mostrarErro('err-cargo'); return; }
+
+  const isCorretor = cargoSelecionado === 'Corretor(a)';
+  document.getElementById('campo-areaAtuacao').classList.toggle('hidden', !isCorretor);
+  document.getElementById('campo-nomeGerente').classList.toggle('hidden', !isCorretor);
+
+  const lbl = document.getElementById('emailPessoalLabel');
+  if (cargoSelecionado === 'Outros') { lbl.className = 'opt'; lbl.textContent = '(opcional)'; }
+  else { lbl.className = 'req'; lbl.textContent = '*'; }
+
+  document.getElementById('subtituloCargo').textContent = 'Etapa 2 de 5 · ' + cargoSelecionado;
+  irParaStep(2);
+}
+
+// ── Step 2 → 3 ──
+function avancarStep2() {
+  let ok = true;
+  if (!v('nomeCompleto'))  { mostrarErro('err-nomeCompleto'); ok = false; }
+  const cpfNum = document.getElementById('cpf').value.replace(/\D/g, '');
+  if (!cpfNum)             { mostrarErro('err-cpf'); ok = false; }
+  else if (!validarCPF(cpfNum)) { mostrarErro('err-cpf'); ok = false; }
+  if (!v('rg'))            { mostrarErro('err-rg'); ok = false; }
+  if (!validarDataValor()) { mostrarErro('err-dataNascimento'); ok = false; }
+  if (!document.querySelector('input[name="sexo"]:checked')) { mostrarErro('err-sexo'); ok = false; }
+  if (!v('estadoCivil'))   { mostrarErro('err-estadoCivil'); ok = false; }
+  if (document.getElementById('celular').value.replace(/\D/g, '').length < 10) {
+    mostrarErro('err-celular'); ok = false;
+  }
+  const ep = document.getElementById('emailPessoal').value;
+  if (cargoSelecionado !== 'Outros' && !emailValido(ep)) { mostrarErro('err-emailPessoal'); ok = false; }
+  if (ep && !emailValido(ep)) { mostrarErro('err-emailPessoal'); ok = false; }
+  const epro = document.getElementById('emailProf').value;
+  if (epro && !emailValido(epro)) { mostrarErro('err-emailProf'); ok = false; }
+  if (cargoSelecionado === 'Corretor(a)') {
+    const areas = document.querySelectorAll('input[name="areaAtuacao"]:checked');
+    if (areas.length === 0) { mostrarErro('err-areaAtuacao'); ok = false; }
+    if (!v('nomeGerente')) { mostrarErro('err-nomeGerente'); ok = false; }
+  }
+  if (!ok) { scrollToFirstError(); return; }
+
+  const temCreci = ['Corretor(a)', 'Gerente', 'Diretoria'].includes(cargoSelecionado);
+  document.getElementById('secao-creci').classList.toggle('hidden', !temCreci);
+  irParaStep(3);
+}
+
+// ── Step 3 → 4 ──
+function avancarStep3() {
+  let ok = true;
+  if (!v('uf'))       { mostrarErro('err-uf');      ok = false; }
+  if (!v('cidade'))   { mostrarErro('err-cidade');  ok = false; }
+  const cepNum = document.getElementById('cep').value.replace(/\D/g, '');
+  if (cepNum.length !== 8) { mostrarErro('err-cep'); ok = false; }
+  if (!v('bairro'))   { mostrarErro('err-bairro');  ok = false; }
+  if (!v('endereco')) { mostrarErro('err-endereco'); ok = false; }
+  const num = document.getElementById('numEndereco').value;
+  if (!num || isNaN(num) || +num < 1 || +num > 99999) { mostrarErro('err-numEndereco'); ok = false; }
+  if (!ok) { scrollToFirstError(); return; }
+  irParaStep(4);
+}
+
+// ── Step 4 → 5 ──
+function avancarStep4() {
+  let ok = true;
+  if (!v('banco'))       { mostrarErro('err-banco');       ok = false; }
+  padAgencia();
+  if (!v('agencia') || v('agencia').replace(/\D/g,'').length < 1) { mostrarErro('err-agencia'); ok = false; }
+  if (!v('conta'))       { mostrarErro('err-conta');       ok = false; }
+  if (!v('digitoConta')) { mostrarErro('err-digitoConta'); ok = false; }
+  if (!v('tipoConta')) { mostrarErro('err-tipoConta'); ok = false; }
+  if (tipoPixSelecionado) {
+    const pix = document.getElementById('chavePix').value;
+    let pixOk = false;
+    if (tipoPixSelecionado === 'CPF')     pixOk = validarCPF(pix.replace(/\D/g, ''));
+    if (tipoPixSelecionado === 'CNPJ')    pixOk = validarCNPJ(pix.replace(/\D/g, ''));
+    if (tipoPixSelecionado === 'Celular') pixOk = pix.replace(/\D/g, '').length >= 10;
+    if (tipoPixSelecionado === 'E-mail')  pixOk = emailValido(pix);
+    if (!pixOk) { mostrarErro('err-chavePix'); ok = false; }
+  }
+  if (!ok) { scrollToFirstError(); return; }
+  irParaStep(5);
+}
+
+// ── Cidades IBGE (autocomplete customizado) ──
+let _cidades = [];
+
+async function carregarCidades() {
+  const uf  = document.getElementById('uf').value;
+  const inp = document.getElementById('cidade');
+  const sp  = document.getElementById('cidadeSpinner');
+  const dd  = document.getElementById('ac-dropdown');
+  inp.value = ''; inp.disabled = true; _cidades = []; dd.classList.remove('open');
+  esconderErro('err-uf'); esconderErro('err-cidade');
+  if (!uf) { inp.placeholder = 'Selecione o estado primeiro'; return; }
+  sp.classList.add('show'); inp.placeholder = 'Carregando cidades...';
+  try {
+    const r = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios?orderBy=nome`);
+    const lista = await r.json();
+    _cidades = lista.map(c => c.nome);
+    inp.placeholder = 'Digite para buscar a cidade...';
+    inp.disabled = false; inp.focus();
+  } catch(e) { inp.placeholder = 'Digite o nome da cidade'; inp.disabled = false; }
+  sp.classList.remove('show');
+}
+
+function filtrarCidades() {
+  esconderErro('err-cidade');
+  const inp = document.getElementById('cidade');
+  const dd  = document.getElementById('ac-dropdown');
+  const q   = inp.value.trim().toLowerCase();
+  if (!q || _cidades.length === 0) { dd.classList.remove('open'); return; }
+  const matches = _cidades.filter(c => c.toLowerCase().includes(q)).slice(0, 60);
+  if (matches.length === 0) {
+    dd.innerHTML = '<div class="ac-empty">Nenhuma cidade encontrada</div>';
+  } else {
+    dd.innerHTML = matches.map(c =>
+      `<div class="ac-item" onmousedown="selecionarCidade('${c.replace(/'/g,"\\'")}')">
+        ${c.replace(new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'), m => `<strong>${m}</strong>`)}
+      </div>`
+    ).join('');
+  }
+  dd.classList.add('open');
+}
+
+function selecionarCidade(nome) {
+  document.getElementById('cidade').value = nome;
+  document.getElementById('ac-dropdown').classList.remove('open');
+  esconderErro('err-cidade');
+}
+
+function fecharAcDropdown() {
+  setTimeout(() => document.getElementById('ac-dropdown').classList.remove('open'), 150);
+}
+
+// ── CRECI condicional ──
+function verificarCRECI() {
+  const val = document.getElementById('creci').value;
+  document.getElementById('campo-statusCreci').classList.toggle('hidden', !val);
+  if (!val) document.getElementById('statusCreci').value = '';
+}
+
+// ── PIX condicional ──
+function selecionarTipoPix(el, tipo) {
+  document.querySelectorAll('#tipoPixChoices .gf-option').forEach(i => i.classList.remove('selected'));
+  el.classList.add('selected'); el.querySelector('input').checked = true;
+  tipoPixSelecionado = tipo;
+  const fmt = {
+    CPF:     '000.000.000-00',
+    CNPJ:    '00.000.000/0000-00',
+    Celular: '(00) 00000-0000',
+    'E-mail':'email@dominio.com'
+  };
+  const inp = document.getElementById('chavePix');
+  document.getElementById('pixFormatoHint').textContent = 'Formato: ' + fmt[tipo];
+  inp.placeholder = fmt[tipo]; inp.value = '';
+  inp.maxLength = tipo === 'CNPJ' ? 18 : tipo === 'CPF' ? 14 : tipo === 'Celular' ? 15 : 100;
+  document.getElementById('campo-chavePix').classList.remove('hidden');
+  esconderErro('err-chavePix');
+}
+function validarChavePix() {
+  const inp = document.getElementById('chavePix');
+  if      (tipoPixSelecionado === 'CPF')    aplicarMascaraCPF(inp);
+  else if (tipoPixSelecionado === 'CNPJ')   aplicarMascaraCNPJ(inp);
+  else if (tipoPixSelecionado === 'Celular') aplicarMascaraTel(inp);
+  esconderErro('err-chavePix');
+}
+function validarChavePixBlur() {
+  const val = document.getElementById('chavePix').value;
+  if (!val) return;
+  let ok = false;
+  if (tipoPixSelecionado === 'CPF')     ok = validarCPF(val.replace(/\D/g, ''));
+  if (tipoPixSelecionado === 'CNPJ')    ok = validarCNPJ(val.replace(/\D/g, ''));
+  if (tipoPixSelecionado === 'Celular') ok = val.replace(/\D/g, '').length >= 10;
+  if (tipoPixSelecionado === 'E-mail')  ok = emailValido(val);
+  if (!ok) mostrarErro('err-chavePix'); else esconderErro('err-chavePix');
+}
+
+// ── Máscaras ──
+function aplicarMascaraCPF(inp) {
+  inp.value = inp.value.replace(/\D/g,'')
+    .replace(/(\d{3})(\d)/,'$1.$2')
+    .replace(/(\d{3})(\d)/,'$1.$2')
+    .replace(/(\d{3})(\d{1,2})/,'$1-$2')
+    .replace(/(-\d{2})\d+$/,'$1');
+  esconderErro('err-cpf');
+  document.getElementById('cpf-ok').classList.remove('valid');
+  document.getElementById('cpf-err').classList.remove('invalid');
+}
+function aplicarMascaraTel(inp) {
+  let v = inp.value.replace(/\D/g,'');
+  if (v.length <= 10) v = v.replace(/(\d{2})(\d)/,'($1) $2').replace(/(\d{4})(\d)/,'$1-$2');
+  else v = v.replace(/(\d{2})(\d)/,'($1) $2').replace(/(\d{5})(\d)/,'$1-$2').replace(/(-\d{4})\d+$/,'$1');
+  inp.value = v;
+}
+function aplicarMascaraData(inp) {
+  inp.value = inp.value.replace(/\D/g,'')
+    .replace(/(\d{2})(\d)/,'$1/$2')
+    .replace(/(\d{2})(\d)/,'$1/$2')
+    .replace(/(\/\d{4})\d+$/,'$1');
+}
+function padAgencia() {
+  const inp = document.getElementById('agencia');
+  if (inp.value) inp.value = inp.value.replace(/\D/g,'').padStart(4,'0');
+}
+function aplicarMascaraCNPJ(inp) {
+  inp.value = inp.value.replace(/\D/g,'')
+    .replace(/(\d{2})(\d)/,'$1.$2')
+    .replace(/(\d{3})(\d)/,'$1.$2')
+    .replace(/(\d{3})(\d)/,'$1/$2')
+    .replace(/(\d{4})(\d{1,2})/,'$1-$2')
+    .replace(/(-\d{2})\d+$/,'$1');
+}
+function validarCNPJ(cnpj) {
+  cnpj = cnpj.replace(/\D/g,'');
+  if (cnpj.length !== 14 || /^(\d)\1+$/.test(cnpj)) return false;
+  let t = cnpj.length - 2, d = cnpj.substring(t), n = cnpj.substring(0,t), s = 0, p = t - 7;
+  for (let i = t; i >= 1; i--) { s += +n.charAt(t - i) * p--; if (p < 2) p = 9; }
+  let r = s % 11 < 2 ? 0 : 11 - s % 11;
+  if (r !== +d.charAt(0)) return false;
+  t++; n = cnpj.substring(0,t); s = 0; p = t - 7;
+  for (let i = t; i >= 1; i--) { s += +n.charAt(t - i) * p--; if (p < 2) p = 9; }
+  r = s % 11 < 2 ? 0 : 11 - s % 11;
+  return r === +d.charAt(1);
+}
+function aplicarMascaraCEP(inp) {
+  inp.value = inp.value.replace(/\D/g,'')
+    .replace(/(\d{5})(\d)/,'$1-$2')
+    .replace(/(-\d{3})\d+$/,'$1');
+  esconderErro('err-cep');
+}
+
+// ── Validações ──
+function validarCPF(cpf) {
+  cpf = cpf.replace(/\D/g,'');
+  if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
+  let s = 0; for (let i = 0; i < 9; i++) s += +cpf[i] * (10 - i);
+  let r = (s * 10) % 11; if (r === 10 || r === 11) r = 0; if (r !== +cpf[9]) return false;
+  s = 0; for (let i = 0; i < 10; i++) s += +cpf[i] * (11 - i);
+  r = (s * 10) % 11; if (r === 10 || r === 11) r = 0; return r === +cpf[10];
+}
+function validarCPFCampo() {
+  const val = document.getElementById('cpf').value.replace(/\D/g,'');
+  const ok  = document.getElementById('cpf-ok');
+  const er  = document.getElementById('cpf-err');
+  ok.classList.remove('valid'); er.classList.remove('invalid');
+  if (!val) return;
+  if (validarCPF(val)) ok.classList.add('valid');
+  else { er.classList.add('invalid'); mostrarErro('err-cpf'); }
+}
+function validarDataValor() {
+  const v = document.getElementById('dataNascimento').value;
+  if (!v || v.length !== 10) return false;
+  const [d, m, a] = v.split('/').map(Number);
+  if (!d || !m || !a || d < 1 || d > 31 || m < 1 || m > 12 || a < 1900 || a > 2099) return false;
+  const dt = new Date(a, m - 1, d);
+  return dt.getFullYear() === a && dt.getMonth() === m - 1 && dt.getDate() === d;
+}
+function validarData() {
+  if (!validarDataValor()) mostrarErro('err-dataNascimento');
+  else esconderErro('err-dataNascimento');
+}
+function emailValido(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+function validarEmail(inp, errId) {
+  if (inp.value && !emailValido(inp.value)) mostrarErro(errId);
+  else esconderErro(errId);
+}
+function validarTel(inp, errId) {
+  if (inp.value.replace(/\D/g,'').length < 10) mostrarErro(errId);
+  else esconderErro(errId);
+}
+
+// ── Helpers ──
+function v(id) { return (document.getElementById(id).value || '').trim(); }
+function mostrarErro(id)  { const el = document.getElementById(id); if (el) el.classList.add('show'); }
+function esconderErro(id) { const el = document.getElementById(id); if (el) el.classList.remove('show'); }
+function limparErro(id)   { esconderErro('err-' + id); }
+function scrollToFirstError() {
+  const f = document.querySelector('.field-error.show');
+  if (f) f.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// ── Envio ──
+async function enviarFormulario() {
+  if (!document.getElementById('aceite').checked) { mostrarErro('err-aceite'); return; }
+
+  const btn = document.getElementById('btnEnviar');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Enviando...';
+
+  const areas = [...document.querySelectorAll('input[name="areaAtuacao"]:checked')]
+    .map(i => i.value).join(', ');
+
+  const dados = {
+    timestamp:      new Date().toLocaleString('pt-BR'),
+    cargo:          cargoSelecionado,
+    aceite:         'Sim',
+    nomeCompleto:   v('nomeCompleto'),
+    cpf:            v('cpf'),
+    rg:             v('rg'),
+    dataNascimento: v('dataNascimento'),
+    sexo:           (document.querySelector('input[name="sexo"]:checked') || {value:''}).value,
+    estadoCivil:    v('estadoCivil'),
+    celular:        v('celular'),
+    telComercial:   v('telComercial'),
+    emailPessoal:   v('emailPessoal'),
+    emailProf:      v('emailProf'),
+    areaAtuacao:    areas,
+    nomeGerente:    cargoSelecionado === 'Corretor(a)' ? v('nomeGerente') : '',
+    uf:             v('uf'),
+    cidade:         v('cidade'),
+    cep:            v('cep'),
+    bairro:         v('bairro'),
+    endereco:       v('endereco'),
+    numEndereco:    v('numEndereco'),
+    complemento:    v('complemento'),
+    creci:          v('creci'),
+    statusCreci:    v('statusCreci'),
+    banco:          v('banco'),
+    agencia:        v('agencia'),
+    conta:          v('conta'),
+    digitoConta:    v('digitoConta'),
+    tipoConta:      v('tipoConta'),
+    tipoPix:        tipoPixSelecionado,
+    chavePix:       v('chavePix'),
+    favorecido:     v('favorecido'),
+    docFavorecido:  v('docFavorecido'),
+  };
+
+  const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwORA9UNpzEcCODHwY8Hxj4UkWMpz3JugB29RfPEeo31x53zWWTg89z7k6H4mV_eRtuQw/exec';
+
+  try {
+    const params = new URLSearchParams(dados).toString();
+    await fetch(SHEET_URL + '?' + params, { method: 'GET', mode: 'no-cors' });
+    document.getElementById('nomeConfirmacao').textContent = v('nomeCompleto').split(' ')[0];
+    irParaStep(6);
+  } catch(err) {
+    btn.disabled = false;
+    btn.innerHTML = 'Enviar Recadastramento ✓';
+    alert('Erro ao enviar. Verifique sua conexão e tente novamente.');
+  }
+}
+</script>
+</body>
+</html>

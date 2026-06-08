@@ -588,6 +588,13 @@ body {
       <div class="field-error" id="err-emailProf">E-mail inválido.</div>
     </div>
 
+    <!-- Instagram -->
+    <div class="field">
+      <label class="field-label" for="instagram">Instagram</label>
+      <input class="f-input" type="text" id="instagram" maxlength="60"
+        placeholder="@seuperfil">
+    </div>
+
     <!-- Área de Atuação (Corretor) -->
     <div class="cond-field hidden field" id="campo-areaAtuacao">
       <label class="field-label">Área de Atuação <span class="req">*</span></label>
@@ -1321,6 +1328,7 @@ async function enviarFormulario() {
     telComercial:   v('telComercial'),
     emailPessoal:   v('emailPessoal'),
     emailProf:      v('emailProf'),
+    instagram:      v('instagram'),
     areaAtuacao:    areas,
     nomeGerente:    cargoSelecionado === 'Corretor(a)' ? v('nomeGerente') : '',
     uf:             v('uf'),

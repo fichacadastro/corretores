@@ -1421,9 +1421,11 @@ function jsonpGet(url) {
       delete window[cb];
       if (tag.parentNode) tag.parentNode.removeChild(tag);
     }
-    window[cb]   = (data) => { cleanup(); resolve(data); };
-    tag.onerror  = ()     => { cleanup(); reject(new Error('Erro de rede')); };
-    tag.src      = url + '&cb=' + cb;
+    const fullUrl = url + '&cb=' + cb;
+    console.log('📡 JSONP URL:', fullUrl);
+    window[cb]   = (data) => { cleanup(); console.log('✅ JSONP resposta:', data); resolve(data); };
+    tag.onerror  = ()     => { cleanup(); console.error('❌ JSONP erro:', fullUrl); reject(new Error('Erro de rede')); };
+    tag.src      = fullUrl;
     document.head.appendChild(tag);
   });
 }

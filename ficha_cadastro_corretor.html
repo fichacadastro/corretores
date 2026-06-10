@@ -232,8 +232,8 @@ body {
   user-select: none;
 }
 .gf-option:hover { background: #f1f3f4; }
-.gf-option.selected { background: var(--accent-lt); border-color: var(--accent-brd); }
-.gf-option:focus-within { outline: 2px solid var(--accent); outline-offset: 1px; }
+.gf-option.selected { background: var(--accent-lt); }
+.gf-option:focus-within { outline: none; }
 .gf-option input { opacity: 0; position: absolute; width: 0; height: 0; margin: 0; }
 
 .gf-radio {
@@ -710,7 +710,7 @@ body {
 
       <!-- Possui Empresa PJ -->
       <div class="field">
-        <label class="field-label">Possui empresa (PJ)?</label>
+        <label class="field-label">Possui empresa (PJ)? <span class="req">*</span></label>
         <div class="gf-options horizontal" id="pjChoices">
           <label class="gf-option" onclick="selecionarPJ(this, true)">
             <input type="radio" name="possuiPJ" value="Sim" onchange="syncGfOption(this)">
@@ -724,6 +724,7 @@ body {
         <div class="cond-field hidden field-hint" id="pj-aviso" style="color:#e65100;margin-top:8px;margin-bottom:0">
           ⚠ Ao selecionar "Sim", Nome da Empresa e CNPJ tornam-se obrigatórios.
         </div>
+        <div class="field-error" id="err-possuiPJ">Informe se possui empresa (PJ).</div>
       </div>
 
       <!-- Nome da Empresa (condicional) -->
@@ -906,22 +907,34 @@ body {
         <p class="field-desc">Envie a frente e o verso do documento. Você também pode enviar um único arquivo PDF com a CNH digital.</p>
         <div class="upload-dual">
           <!-- Frente -->
-          <div class="upload-zone-sm" id="cnhFrenteZone">
-            <input type="file" id="cnhFrenteFile" accept="image/*,.pdf"
+          <div class="upload-zone" id="cnhFrenteZone" style="padding:20px 12px">
+            <input type="file" id="cnhFrenteFile" accept="image/*,.pdf" capture="environment"
               onchange="handleDocUpload('cnhFrenteFile','cnhFrenteZone','cnhFrenteNome')">
-            <div class="upload-label">Frente</div>
-            <span class="upload-zone-icon">🪪</span>
-            <div class="upload-zone-hint">Foto ou PDF</div>
+            <div class="upload-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C62828" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="12" cy="12" r="3"/>
+                <path d="M16 4v2M8 4v2"/>
+              </svg>
+            </div>
+            <div class="upload-title" style="font-size:13px">FRENTE</div>
+            <div class="upload-hint" style="font-size:11px">Câmera ou arquivo</div>
             <div class="upload-file-name" id="cnhFrenteNome"></div>
+            <div class="upload-status-badge" id="cnhFrenteZone-badge" style="display:none"></div>
           </div>
           <!-- Verso -->
-          <div class="upload-zone-sm" id="cnhVersoZone">
-            <input type="file" id="cnhVersoFile" accept="image/*,.pdf"
+          <div class="upload-zone" id="cnhVersoZone" style="padding:20px 12px">
+            <input type="file" id="cnhVersoFile" accept="image/*,.pdf" capture="environment"
               onchange="handleDocUpload('cnhVersoFile','cnhVersoZone','cnhVersoNome')">
-            <div class="upload-label">Verso</div>
-            <span class="upload-zone-icon">🪪</span>
-            <div class="upload-zone-hint">Foto ou PDF</div>
+            <div class="upload-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C62828" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="12" cy="12" r="3"/>
+                <path d="M16 4v2M8 4v2"/>
+              </svg>
+            </div>
+            <div class="upload-title" style="font-size:13px">VERSO</div>
+            <div class="upload-hint" style="font-size:11px">Câmera ou arquivo</div>
             <div class="upload-file-name" id="cnhVersoNome"></div>
+            <div class="upload-status-badge" id="cnhVersoZone-badge" style="display:none"></div>
           </div>
         </div>
         <div class="field-hint" style="margin-top:8px">Se tiver a CNH digital em PDF, basta enviar em um dos campos acima.</div>
@@ -1410,27 +1423,9 @@ async function comprimirImagem(file) {
   });
 }
 
-/** Requisição GET ao GAS via <script> (bypass CORS, permite ler a resposta) */
+/** @deprecated — mantido por compatibilidade, não é mais usado */
 function jsonpGet(url) {
-  return new Promise((resolve, reject) => {
-    const cb  = '_gcb_' + Date.now() + '_' + Math.floor(Math.random() * 9999);
-    const tag = document.createElement('script');
-    const tid = setTimeout(() => { console.log('⏱️ TIMEOUT após 30s para callback:', cb); cleanup(); reject(new Error('Timeout')); }, 30000);
-    function cleanup() {
-      clearTimeout(tid);
-      delete window[cb];
-      if (tag.parentNode) tag.parentNode.removeChild(tag);
-    }
-    const fullUrl = url + '&cb=' + cb;
-    console.log('🔧 jsonpGet chamado. CB:', cb);
-    console.log('📡 JSONP URL completa:', fullUrl.substring(0, 300) + '...');
-    window[cb]   = (data) => { console.log('✅ JSONP SUCESSO! Resposta:', data); cleanup(); resolve(data); };
-    tag.onerror  = ()     => { console.error('❌ JSONP ERRO (onerror). CB:', cb); cleanup(); reject(new Error('Erro de rede')); };
-    tag.onload   = ()     => { console.log('📌 Script tag onload disparado. CB:', cb); };
-    tag.src      = fullUrl;
-    console.log('🚀 Adicionando tag script ao document.head');
-    document.head.appendChild(tag);
-  });
+  return Promise.reject(new Error('jsonpGet não é mais utilizado'));
 }
 
 /** Exibe badge de status ao lado da zona de upload */
@@ -1474,9 +1469,7 @@ async function uploadFileChunked(file, fileType, zoneId, nomeCompleto, cpf) {
       base64 = c.base64; mimeType = c.type; ext = c.ext;
     }
 
-    console.log(`📤 Upload [${fileType}] iniciado. Tamanho: ${base64.length} chars`);
-
-    // Upload via fetch POST (muito mais confiável que JSONP)
+    // Upload via fetch POST
     const payload = {
       token: FORM_TOKEN,
       action: 'upload_file',
@@ -1488,32 +1481,21 @@ async function uploadFileChunked(file, fileType, zoneId, nomeCompleto, cpf) {
       cpf: cpf || 'desconhecido'
     };
 
-    console.log(`🚀 Enviando POST para ${SHEET_URL}`);
     const form = new FormData();
     Object.keys(payload).forEach(k => form.append(k, payload[k]));
 
-    const response = await fetch(SHEET_URL, {
-      method: 'POST',
-      body: form
-      // NÃO enviar Content-Type header — FormData se encarrega
-    });
-
+    const response = await fetch(SHEET_URL, { method: 'POST', body: form });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
     const result = await response.json();
-    console.log(`✅ Resposta recebida:`, result);
-
     if (result.status !== 'ok') throw new Error(result.message || 'Erro desconhecido');
     if (!result.url) throw new Error('Sem URL retornada');
 
     _uploadStatus[fileType] = result.url;
     atualizarStatusUpload(zoneId, 'done');
-    console.log(`✅ ${fileType} salvo em: ${result.url}`);
     return result.url;
 
   } catch(err) {
-    console.error('❌ uploadFileChunked [' + fileType + ']:', err);
-    alert('ERRO upload [' + fileType + ']: ' + err.message);
     _uploadStatus[fileType] = '';
     atualizarStatusUpload(zoneId, 'error');
     return '';
@@ -1521,12 +1503,6 @@ async function uploadFileChunked(file, fileType, zoneId, nomeCompleto, cpf) {
 }
 
 async function enviarFormulario() {
-  const _s = document.getElementById('selfieFile').files[0];
-  const _f = document.getElementById('cnhFrenteFile').files[0];
-  const _v = document.getElementById('cnhVersoFile').files[0];
-  alert('Selfie: ' + (_s ? _s.name : 'vazia') +
-        '\nFrente: ' + (_f ? _f.name : 'vazia') +
-        '\nVerso: '  + (_v ? _v.name : 'vazia'));
 
   let ok = true;
 
@@ -1557,6 +1533,9 @@ async function enviarFormulario() {
   const ep = document.getElementById('emailPessoal').value;
   if (!emailValido(ep))          { mostrarErro('err-emailPessoal'); ok = false; }
   else if (emailCorporativo(ep)) { mostrarErro('err-emailCorp');    ok = false; }
+
+  // PJ obrigatório
+  if (!document.querySelector('input[name="possuiPJ"]:checked')) { mostrarErro('err-possuiPJ'); ok = false; }
 
   // CNPJ — obrigatório se PJ = Sim, validado sempre que preenchido
   const isPJ = document.querySelector('input[name="possuiPJ"]:checked')?.value === 'Sim';
@@ -1608,7 +1587,7 @@ async function enviarFormulario() {
 
   if (!temFotos) {
     // Nenhum arquivo selecionado — continua sem upload
-    console.log('Nenhum arquivo selecionado. Enviando apenas dados.');
+    // Sem arquivos — apenas dados
   } else {
     btn.innerHTML = '<span class="spinner"></span> Enviando fotos...';
     await Promise.allSettled([
@@ -1667,7 +1646,11 @@ async function enviarFormulario() {
   } catch(err) {
     btn.disabled = false;
     btn.innerHTML = 'Enviar Ficha de Cadastro ✓';
-    alert('Erro ao enviar. Verifique sua conexão e tente novamente.');
+    const errDiv = document.getElementById('btn-area') || document.querySelector('.btn-wrap');
+    const msg = document.createElement('div');
+    msg.className = 'field-error'; msg.style.display = 'block'; msg.style.marginTop = '12px';
+    msg.textContent = 'Erro ao enviar. Verifique sua conexão e tente novamente.';
+    btn.parentNode.insertBefore(msg, btn.nextSibling);
   }
 }
 </script>

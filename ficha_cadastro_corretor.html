@@ -1526,6 +1526,7 @@ async function enviarFormulario() {
     chavePix:        v('chavePix'),
     favorecido:      v('favorecido'),
     cpfFavorecido:   v('cpfFavorecido'),
+    token:           FORM_TOKEN,
     // Arquivos em Base64
     selfieBase64:    selfie.base64    || '',
     selfieType:      selfie.type      || '',
@@ -1538,8 +1539,10 @@ async function enviarFormulario() {
     cnhVersoExt:     cnhVerso.ext     || '',
   };
 
-  // URL do Google Apps Script — substituir após implantar o sheets_backend_ficha.js
-  const SHEET_URL = 'https://script.google.com/macros/s/SEU_SCRIPT_ID_AQUI/exec';
+  // URL e token do Google Apps Script — substituir após implantar o sheets_backend_ficha.js
+  // IMPORTANTE: o FORM_TOKEN deve ser idêntico ao TOKEN_SECRETO definido no script.
+  const SHEET_URL   = 'https://script.google.com/macros/s/SEU_SCRIPT_ID_AQUI/exec';
+  const FORM_TOKEN  = '5gZwEvcxAV7i5t5m74Fl3hgdE4lr5DP8ej0fkOEOp177AFrO02FkLKQ1sHfJcGz9';
 
   try {
     await fetch(SHEET_URL, {

@@ -1466,6 +1466,15 @@ async function uploadFileChunked(file, fileType, zoneId, nomeCompleto, cpf) {
 }
 
 async function enviarFormulario() {
+
+  // DEBUG TEMPORÁRIO — mostra quais arquivos estão selecionados
+  const _dbgSelfie = document.getElementById('selfieFile').files[0];
+  const _dbgFrente = document.getElementById('cnhFrenteFile').files[0];
+  const _dbgVerso  = document.getElementById('cnhVersoFile').files[0];
+  alert('DEBUG arquivos:\nSelfie: '    + (_dbgSelfie ? _dbgSelfie.name : 'não selecionada') +
+        '\nCNH Frente: ' + (_dbgFrente ? _dbgFrente.name : 'não selecionada') +
+        '\nCNH Verso: '  + (_dbgVerso  ? _dbgVerso.name  : 'não selecionada'));
+
   let ok = true;
 
   // Dados Pessoais

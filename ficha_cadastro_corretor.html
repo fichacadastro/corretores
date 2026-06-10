@@ -1541,21 +1541,30 @@ async function enviarFormulario() {
 
   // URL e token do Google Apps Script — substituir após implantar o sheets_backend_ficha.js
   // IMPORTANTE: o FORM_TOKEN deve ser idêntico ao TOKEN_SECRETO definido no script.
-  const SHEET_URL   = 'https://script.google.com/macros/s/AKfycbxxKdaIwPVj5PLVIYN2Y-XqJpOdyRo0ligVC80RU00GarH2BxoJGvhz6BGSIkTRLAWn/exec';
+  const SHEET_URL   = 'https://script.google.com/macros/s/SEU_SCRIPT_ID_AQUI/exec';
   const FORM_TOKEN  = '5gZwEvcxAV7i5t5m74Fl3hgdE4lr5DP8ej0fkOEOp177AFrO02FkLKQ1sHfJcGz9';
 
   try {
+    // no-cors: browser não lê a resposta, mas os dados chegam ao Apps Script
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 60000); // 60s timeout
     await fetch(SHEET_URL, {
       method:  'POST',
-      headers: { 'Content-Type': 'text/plain' }, // evita preflight CORS
+      mode:    'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
       body:    JSON.stringify(dados),
+      signal:  controller.signal,
     });
+    clearTimeout(timeout);
     document.getElementById('nomeConfirmacao').textContent = v('nomeCompleto').split(' ')[0];
     irParaStep(2);
   } catch(err) {
     btn.disabled = false;
     btn.innerHTML = 'Enviar Ficha de Cadastro ✓';
-    alert('Erro ao enviar. Verifique sua conexão e tente novamente.');
+    const msg = err.name === 'AbortError'
+      ? 'Tempo esgotado. Verifique sua conexão e tente novamente.'
+      : 'Erro ao enviar. Verifique sua conexão e tente novamente.';
+    alert(msg);
   }
 }
 </script>

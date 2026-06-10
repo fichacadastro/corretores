@@ -909,42 +909,44 @@ body {
         <p class="field-desc">Envie a frente e o verso do documento. Você também pode enviar um único arquivo PDF com a CNH digital.</p>
         <div class="upload-dual">
           <!-- Frente -->
-          <div class="upload-zone" id="cnhFrenteZone" style="padding:20px 12px">
-            <input type="file" id="cnhFrenteFile" accept="image/*,.pdf"
-              onchange="handleDocUpload('cnhFrenteFile','cnhFrenteZone','cnhFrenteNome')">
-            <div class="upload-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C62828" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="12" cy="12" r="3"/>
-                <path d="M16 4v2M8 4v2"/>
-              </svg>
+          <div>
+            <div class="upload-zone" id="cnhFrenteZone">
+              <input type="file" id="cnhFrenteFile" accept="image/*,.pdf"
+                onchange="handleDocUpload('cnhFrenteFile','cnhFrenteZone','cnhFrenteNome')">
+              <div class="upload-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C62828" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="12" cy="12" r="3"/>
+                  <path d="M16 4v2M8 4v2"/>
+                </svg>
+              </div>
+              <div class="upload-title">Frente</div>
+              <div class="upload-hint">Clique para abrir a câmera ou escolher um arquivo</div>
+              <div class="upload-btn-visual">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                Tirar foto / Escolher arquivo
+              </div>
             </div>
-            <div class="upload-title" style="font-size:13px">FRENTE</div>
-            <div class="upload-hint" style="font-size:11px">Clique para abrir a câmera ou escolher um arquivo</div>
-            <div class="upload-btn-visual" style="font-size:12px;padding:5px 12px;margin-top:8px">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-              Tirar foto / Escolher arquivo
-            </div>
-            <div class="upload-file-name" id="cnhFrenteNome"></div>
-            <div class="upload-status-badge" id="cnhFrenteZone-badge" style="display:none"></div>
+            <div class="upload-file-name" id="cnhFrenteNome" style="margin-top:6px;font-size:12px;color:var(--success);font-weight:600"></div>
           </div>
           <!-- Verso -->
-          <div class="upload-zone" id="cnhVersoZone" style="padding:20px 12px">
-            <input type="file" id="cnhVersoFile" accept="image/*,.pdf"
-              onchange="handleDocUpload('cnhVersoFile','cnhVersoZone','cnhVersoNome')">
-            <div class="upload-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C62828" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="12" cy="12" r="3"/>
-                <path d="M16 4v2M8 4v2"/>
-              </svg>
+          <div>
+            <div class="upload-zone" id="cnhVersoZone">
+              <input type="file" id="cnhVersoFile" accept="image/*,.pdf"
+                onchange="handleDocUpload('cnhVersoFile','cnhVersoZone','cnhVersoNome')">
+              <div class="upload-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C62828" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="12" cy="12" r="3"/>
+                  <path d="M16 4v2M8 4v2"/>
+                </svg>
+              </div>
+              <div class="upload-title">Verso</div>
+              <div class="upload-hint">Clique para abrir a câmera ou escolher um arquivo</div>
+              <div class="upload-btn-visual">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                Tirar foto / Escolher arquivo
+              </div>
             </div>
-            <div class="upload-title" style="font-size:13px">VERSO</div>
-            <div class="upload-hint" style="font-size:11px">Clique para abrir a câmera ou escolher um arquivo</div>
-            <div class="upload-btn-visual" style="font-size:12px;padding:5px 12px;margin-top:8px">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-              Tirar foto / Escolher arquivo
-            </div>
-            <div class="upload-file-name" id="cnhVersoNome"></div>
-            <div class="upload-status-badge" id="cnhVersoZone-badge" style="display:none"></div>
+            <div class="upload-file-name" id="cnhVersoNome" style="margin-top:6px;font-size:12px;color:var(--success);font-weight:600"></div>
           </div>
         </div>
         <div class="field-hint" style="margin-top:8px">Se tiver a CNH digital em PDF, basta enviar em um dos campos acima.</div>

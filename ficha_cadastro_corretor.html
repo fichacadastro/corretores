@@ -1474,31 +1474,42 @@ async function uploadFileChunked(file, fileType, zoneId, nomeCompleto, cpf) {
       base64 = c.base64; mimeType = c.type; ext = c.ext;
     }
 
-    const CHUNK = 4000;
-    const total = Math.ceil(base64.length / CHUNK);
-    const sid   = Math.random().toString(36).substr(2, 8);
+    console.log(`📤 Upload [${fileType}] iniciado. Tamanho: ${base64.length} chars`);
 
-    for (let i = 0; i < total; i++) {
-      const isLast = (i === total - 1);
-      const params = new URLSearchParams({
-        token: FORM_TOKEN, action: 'upload_chunk',
-        sid, ftype: fileType, idx: i, total,
-        data: base64.slice(i * CHUNK, (i + 1) * CHUNK),
-        ...(isLast ? { ext, mime: mimeType, nome: nomeCompleto || '', cpf: cpf || '' } : {}),
-      });
-      const fullUrl = SHEET_URL + '?' + params.toString();
-      console.log(`📤 Chunk ${i}/${total-1} URL:`, fullUrl.substring(0, 200) + '...');
-      const res = await jsonpGet(fullUrl);
-      if (res.status !== 'ok') throw new Error(res.message || 'Falha no chunk ' + i);
-      if (res.url) {
-        _uploadStatus[fileType] = res.url;
-        atualizarStatusUpload(zoneId, 'done');
-        return res.url;
-      }
-    }
-    throw new Error('Sem URL retornada após último chunk');
+    // Upload via fetch POST (muito mais confiável que JSONP)
+    const payload = {
+      token: FORM_TOKEN,
+      action: 'upload_file',
+      ftype: fileType,
+      base64: base64,
+      mime: mimeType,
+      ext: ext,
+      nome: nomeCompleto || 'desconhecido',
+      cpf: cpf || 'desconhecido'
+    };
+
+    console.log(`🚀 Enviando POST para ${SHEET_URL}`);
+    const response = await fetch(SHEET_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+    const result = await response.json();
+    console.log(`✅ Resposta recebida:`, result);
+
+    if (result.status !== 'ok') throw new Error(result.message || 'Erro desconhecido');
+    if (!result.url) throw new Error('Sem URL retornada');
+
+    _uploadStatus[fileType] = result.url;
+    atualizarStatusUpload(zoneId, 'done');
+    console.log(`✅ ${fileType} salvo em: ${result.url}`);
+    return result.url;
+
   } catch(err) {
-    console.error('uploadFileChunked [' + fileType + ']:', err);
+    console.error('❌ uploadFileChunked [' + fileType + ']:', err);
     alert('ERRO upload [' + fileType + ']: ' + err.message);
     _uploadStatus[fileType] = '';
     atualizarStatusUpload(zoneId, 'error');

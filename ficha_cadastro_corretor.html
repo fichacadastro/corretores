@@ -1467,14 +1467,6 @@ async function uploadFileChunked(file, fileType, zoneId, nomeCompleto, cpf) {
 
 async function enviarFormulario() {
 
-  // DEBUG TEMPORÁRIO — mostra quais arquivos estão selecionados
-  const _dbgSelfie = document.getElementById('selfieFile').files[0];
-  const _dbgFrente = document.getElementById('cnhFrenteFile').files[0];
-  const _dbgVerso  = document.getElementById('cnhVersoFile').files[0];
-  alert('DEBUG arquivos:\nSelfie: '    + (_dbgSelfie ? _dbgSelfie.name : 'não selecionada') +
-        '\nCNH Frente: ' + (_dbgFrente ? _dbgFrente.name : 'não selecionada') +
-        '\nCNH Verso: '  + (_dbgVerso  ? _dbgVerso.name  : 'não selecionada'));
-
   let ok = true;
 
   // Dados Pessoais
@@ -1613,11 +1605,6 @@ async function enviarFormulario() {
   const cnhFrenteFile = document.getElementById('cnhFrenteFile').files[0];
   const cnhVersoFile  = document.getElementById('cnhVersoFile').files[0];
   const temFotos = selfieFile || cnhFrenteFile || cnhVersoFile;
-
-  // DEBUG TEMPORÁRIO — remover após confirmar funcionamento
-  alert('Selfie: ' + (selfieFile ? selfieFile.name : 'não selecionada') +
-        '\nCNH Frente: ' + (cnhFrenteFile ? cnhFrenteFile.name : 'não selecionada') +
-        '\nCNH Verso: ' + (cnhVersoFile ? cnhVersoFile.name : 'não selecionada'));
 
   if (temFotos) {
     btn.innerHTML = '<span class="spinner"></span> Enviando fotos...';

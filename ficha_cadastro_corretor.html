@@ -1375,8 +1375,40 @@ function validarTel(inp, errId) {
 //  ENVIO
 // ══════════════════════════════════════════════════
 // ══════════════════════════════════════════════════
-//  UPLOAD DE ARQUIVOS — Drive API via JSONP
+//  UPLOAD DE ARQUIVOS — JSONP Chunked
 // ══════════════════════════════════════════════════
+
+/** Comprime imagem via Canvas (máx 1200px, JPEG 75%) */
+async function comprimirImagem(file) {
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const MAX = 1200, Q = 0.75;
+      let w = img.width, h = img.height;
+      if (w > MAX || h > MAX) {
+        if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+        else       { w = Math.round(w * MAX / h); h = MAX; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      canvas.toBlob((blob) => {
+        const reader = new FileReader();
+        reader.onload  = (e) => resolve({
+          base64: e.target.result.split(',')[1],
+          type:   'image/jpeg',
+          ext:    'jpg'
+        });
+        reader.onerror = () => resolve({});
+        reader.readAsDataURL(blob);
+      }, 'image/jpeg', Q);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); resolve({}); };
+    img.src = url;
+  });
+}
 
 /** Requisição GET ao GAS via <script> (bypass CORS, permite ler a resposta) */
 function jsonpGet(url) {
@@ -1466,6 +1498,12 @@ async function uploadFileChunked(file, fileType, zoneId, nomeCompleto, cpf) {
 }
 
 async function enviarFormulario() {
+  const _s = document.getElementById('selfieFile').files[0];
+  const _f = document.getElementById('cnhFrenteFile').files[0];
+  const _v = document.getElementById('cnhVersoFile').files[0];
+  alert('Selfie: ' + (_s ? _s.name : 'vazia') +
+        '\nFrente: ' + (_f ? _f.name : 'vazia') +
+        '\nVerso: '  + (_v ? _v.name : 'vazia'));
 
   let ok = true;
 
@@ -1535,67 +1573,6 @@ async function enviarFormulario() {
   const btn = document.getElementById('btnEnviar');
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span> Enviando...';
-
-  // ── Comprimir imagem com Canvas (máx 1200px, JPEG 75%) ──
-  async function comprimirImagem(file) {
-    return new Promise((resolve) => {
-      const url = URL.createObjectURL(file);
-      const img = new Image();
-      img.onload = () => {
-        URL.revokeObjectURL(url);
-        const MAX = 1200, Q = 0.75;
-        let w = img.width, h = img.height;
-        if (w > MAX || h > MAX) {
-          if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
-          else       { w = Math.round(w * MAX / h); h = MAX; }
-        }
-        const canvas = document.createElement('canvas');
-        canvas.width = w; canvas.height = h;
-        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-        canvas.toBlob((blob) => {
-          const reader = new FileReader();
-          reader.onload  = (e) => resolve({
-            base64: e.target.result.split(',')[1],
-            type:   'image/jpeg',
-            ext:    'jpg'
-          });
-          reader.onerror = () => resolve({});
-          reader.readAsDataURL(blob);
-        }, 'image/jpeg', Q);
-      };
-      img.onerror = () => { URL.revokeObjectURL(url); resolve({}); };
-      img.src = url;
-    });
-  }
-
-  // ── Processar arquivo: comprime imagens, valida tamanho de PDFs ──
-  const LIMITE_PDF_MB = 5;
-  async function arquivoParaBase64(inputId) {
-    const file = document.getElementById(inputId).files[0];
-    if (!file) return {};
-
-    // PDF / arquivo não-imagem: valida tamanho e converte sem compressão
-    if (!file.type.startsWith('image/')) {
-      if (file.size > LIMITE_PDF_MB * 1024 * 1024) {
-        alert(`O arquivo "${file.name}" ultrapassa ${LIMITE_PDF_MB}MB. Por favor, envie um arquivo menor.`);
-        document.getElementById(inputId).value = '';
-        return {};
-      }
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload  = (e) => resolve({
-          base64: e.target.result.split(',')[1],
-          type:   file.type,
-          ext:    file.name.split('.').pop().toLowerCase()
-        });
-        reader.onerror = () => resolve({});
-        reader.readAsDataURL(file);
-      });
-    }
-
-    // Imagem: redimensiona e comprime antes de converter
-    return comprimirImagem(file);
-  }
 
   const nomeCompleto = v('nomeCompleto');
   const cpf          = v('cpf');

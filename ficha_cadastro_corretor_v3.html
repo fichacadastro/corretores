@@ -32,6 +32,7 @@ body {
   color: var(--text);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  color-scheme: light;
 }
 
 /* ── Layout ── */
@@ -443,8 +444,7 @@ body {
    RESPONSIVO
 ══════════════════════════════════════════════════ */
 @media(max-width:600px) {
-  body { font-size: 16px; }
-  .form-wrap { padding: 16px 8px 80px; }
+  .form-wrap { padding: 16px 8px 80px; zoom: 1.15; }
   .section-card, .cover-card { padding: 20px 16px; }
   .gf-options.horizontal { flex-direction: row; flex-wrap: wrap; }
   .upload-dual { grid-template-columns: 1fr; }

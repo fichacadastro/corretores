@@ -1606,14 +1606,17 @@ async function enviarFormulario() {
   const cnhVersoFile  = document.getElementById('cnhVersoFile').files[0];
   const temFotos = selfieFile || cnhFrenteFile || cnhVersoFile;
 
-  if (temFotos) {
+  if (!temFotos) {
+    // Nenhum arquivo selecionado — continua sem upload
+    console.log('Nenhum arquivo selecionado. Enviando apenas dados.');
+  } else {
     btn.innerHTML = '<span class="spinner"></span> Enviando fotos...';
     await Promise.allSettled([
       uploadFileChunked(selfieFile,    'selfie',     'selfieZone',    nomeCompleto, cpf),
       uploadFileChunked(cnhFrenteFile, 'cnh_frente', 'cnhFrenteZone', nomeCompleto, cpf),
       uploadFileChunked(cnhVersoFile,  'cnh_verso',  'cnhVersoZone',  nomeCompleto, cpf),
     ]);
-  }
+  } // fim temFotos
 
   // ── Passo 2: Enviar dados do formulário via GET ─────────────────
   btn.innerHTML = '<span class="spinner"></span> Enviando dados...';

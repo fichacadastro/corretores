@@ -1458,6 +1458,7 @@ async function uploadFileChunked(file, fileType, zoneId, nomeCompleto, cpf) {
     let base64, mimeType, ext;
     if (file.type.startsWith('image/')) {
       const c = await comprimirImagem(file);
+      if (!c || !c.base64) throw new Error('comprimirImagem falhou para: ' + file.name + ' (' + file.type + ', ' + file.size + ' bytes)');
       base64 = c.base64; mimeType = c.type; ext = c.ext;
     } else {
       const c = await new Promise(res => {
@@ -1491,6 +1492,7 @@ async function uploadFileChunked(file, fileType, zoneId, nomeCompleto, cpf) {
     throw new Error('Sem URL retornada após último chunk');
   } catch(err) {
     console.error('uploadFileChunked [' + fileType + ']:', err);
+    alert('ERRO upload [' + fileType + ']: ' + err.message);
     _uploadStatus[fileType] = '';
     atualizarStatusUpload(zoneId, 'error');
     return '';

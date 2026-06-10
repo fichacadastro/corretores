@@ -1,0 +1,1647 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ficha de Cadastro – Corretor Associado</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --accent:     #C62828;
+  --accent-dk:  #8B0000;
+  --accent-lt:  #fce4e4;
+  --accent-brd: #ef9a9a;
+  --bg:         #f5f5f5;
+  --surface:    #ffffff;
+  --border:     #dadce0;
+  --border-foc: #C62828;
+  --text:       #202124;
+  --text2:      #5f6368;
+  --text3:      #9aa0a6;
+  --error:      #d93025;
+  --success:    #1e8e3e;
+  --radius:     8px;
+  --radius-sm:  4px;
+}
+
+body {
+  font-family: 'Segoe UI', 'Google Sans', Roboto, Arial, sans-serif;
+  font-size: 14px;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Layout ── */
+.form-wrap {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 24px 12px 80px;
+}
+
+.step { display: none; }
+.step.active { display: block; }
+
+/* ══════════════════════════════════════════════════
+   CAPA
+══════════════════════════════════════════════════ */
+.cover-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border-top: 10px solid var(--accent);
+  box-shadow: 0 1px 3px rgba(0,0,0,.12), 0 2px 8px rgba(0,0,0,.08);
+  padding: 32px 28px 28px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+.cover-logo {
+  width: 56px; height: 56px; border-radius: 14px;
+  background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 24px;
+  box-shadow: 0 2px 8px rgba(198,40,40,.25);
+}
+.cover-badge {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 22px;
+  color: #888; font-size: 9.5px; font-weight: 600;
+  letter-spacing: 2px; text-transform: uppercase;
+}
+.cover-badge::before,
+.cover-badge::after {
+  content: ''; flex: 1; height: 1px; background: #d0d0d0;
+}
+.cover-title {
+  font-size: 24px; font-weight: 700;
+  color: var(--text); margin-bottom: 12px; line-height: 1.3;
+}
+.cover-desc {
+  font-size: 14px; color: var(--text2); line-height: 1.7;
+  margin-bottom: 20px; text-align: left;
+}
+.cover-lgpd {
+  background: #fafafa;
+  border: 1px solid #e8e8e8;
+  border-radius: var(--radius-sm);
+  padding: 16px 18px; font-size: 13px; color: var(--text2); line-height: 1.65;
+  margin-bottom: 28px;
+}
+.lgpd-header {
+  display: flex; align-items: center; justify-content: center; gap: 9px;
+  margin-bottom: 8px;
+}
+.lgpd-header-text {
+  font-size: 12px; font-weight: 700; color: var(--text);
+  letter-spacing: .3px; text-transform: uppercase;
+}
+.lgpd-body { font-size: 13px; color: var(--text2); line-height: 1.65; text-align: left; }
+
+.btn-start {
+  background: var(--accent);
+  color: #fff; border: none; border-radius: var(--radius-sm);
+  padding: 12px 28px; font-size: 14px; font-weight: 600;
+  cursor: pointer; font-family: inherit; letter-spacing: .25px;
+  transition: background .2s, box-shadow .2s;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-start:hover { background: var(--accent-dk); box-shadow: 0 2px 8px rgba(198,40,40,.4); }
+.cover-meta {
+  font-size: 13px; color: var(--text3); margin-top: 14px;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+}
+
+/* ══════════════════════════════════════════════════
+   CARD PRINCIPAL DO FORMULÁRIO
+══════════════════════════════════════════════════ */
+.section-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border-top: 10px solid var(--accent);
+  box-shadow: 0 1px 3px rgba(0,0,0,.12), 0 2px 8px rgba(0,0,0,.08);
+  padding: 28px 28px 24px;
+  margin-bottom: 16px;
+}
+.section-title {
+  font-size: 22px; font-weight: 400; color: var(--text);
+  margin-bottom: 4px; line-height: 1.3;
+}
+.section-subtitle {
+  font-size: 13px; color: var(--text2); margin-bottom: 0;
+}
+
+/* ── Separadores de tópico dentro do formulário ── */
+.topic-section { padding-top: 28px; margin-top: 28px; border-top: 1px solid var(--border); }
+.topic-section:first-of-type { border-top: none; margin-top: 24px; padding-top: 4px; }
+.topic-title {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 17px; font-weight: 600; color: var(--text);
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--accent-lt);
+}
+.topic-title::before {
+  content: ''; width: 4px; height: 20px; background: var(--accent);
+  border-radius: 2px; flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════════════════
+   CAMPOS
+══════════════════════════════════════════════════ */
+.field { margin-bottom: 24px; }
+.field:last-child { margin-bottom: 0; }
+
+.field-label {
+  font-size: 14px; font-weight: 500; color: var(--text);
+  margin-bottom: 8px; line-height: 1.4;
+  display: block;
+}
+.field-label .req  { color: var(--error); margin-left: 2px; font-weight: 600; }
+.field-label .opt  { color: var(--text3); font-weight: 400; font-size: 13px; margin-left: 4px; }
+.field-label .note { color: var(--accent-dk); font-weight: 500; font-size: 12px;
+                      background: var(--accent-lt); border-radius: 3px; padding: 1px 6px;
+                      display: inline; margin-left: 6px; }
+.field-desc  { font-size: 12px; color: var(--text2); margin-bottom: 10px; line-height: 1.5; }
+.field-hint  { font-size: 12px; color: var(--text3); margin-top: 6px; line-height: 1.5; }
+.field-hint.success { color: var(--success); }
+.field-hint.warning { color: #e65100; }
+
+/* Inputs */
+.f-input, .f-select {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font-size: 14px; color: var(--text);
+  background: #fff; outline: none;
+  transition: border-color .15s;
+  font-family: inherit; appearance: none; -webkit-appearance: none;
+}
+.f-input::placeholder { color: var(--text3); }
+.f-input:focus, .f-select:focus {
+  border-color: var(--border-foc);
+  border-width: 2px;
+  padding: 9px 11px;
+}
+.f-input.has-error { border-color: var(--error); border-width: 2px; padding: 9px 11px; }
+.f-input.has-success { border-color: var(--success); }
+
+/* Campo preenchido pelo CEP (readonly) */
+.f-input.cep-filled, .f-select.cep-filled {
+  background: #f8f9fa; color: var(--text2);
+  border-color: #b8ddb8; border-width: 1px;
+  padding: 10px 12px;
+  cursor: default;
+}
+
+/* Select arrow */
+.f-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%235f6368'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center;
+  padding-right: 32px; cursor: pointer;
+}
+.f-select.cep-filled {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23b8ddb8'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  pointer-events: none;
+}
+
+/* CPF status */
+.cpf-status { font-size: 12px; margin-top: 6px; display: none; }
+.cpf-status.valid   { display:block; color: var(--success); }
+.cpf-status.invalid { display:block; color: var(--error); }
+
+/* Erros */
+.field-error { font-size: 12px; color: var(--error); margin-top: 6px; display: none; align-items: center; gap: 4px; }
+.field-error.show { display: flex; }
+.field-error::before { content: '⚠'; font-size: 11px; }
+
+/* Radio / Checkbox — Google Forms style */
+.gf-options { display: flex; flex-direction: column; gap: 4px; }
+.gf-options.horizontal { flex-direction: row; flex-wrap: wrap; gap: 8px; }
+
+.gf-option {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer; transition: background .15s;
+  font-size: 14px; color: var(--text);
+  user-select: none;
+}
+.gf-option:hover { background: #f1f3f4; }
+.gf-option.selected { background: transparent; }
+.gf-option:focus-within { outline: none; }
+.gf-option input { opacity: 0; position: absolute; width: 0; height: 0; margin: 0; }
+
+.gf-radio {
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 2px solid #5f6368; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: border-color .15s;
+}
+.gf-option.selected .gf-radio { border-color: var(--accent); }
+.gf-radio-inner {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--accent); opacity: 0; transition: opacity .15s;
+}
+.gf-option.selected .gf-radio-inner { opacity: 1; }
+
+/* Condicional */
+.cond-field.hidden { display: none; }
+
+/* Aceite */
+.aceite-wrap {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 16px;
+  display: flex; align-items: flex-start; gap: 12px;
+  cursor: pointer; transition: border-color .15s, background .15s;
+}
+.aceite-wrap:hover { background: #f8f8f8; }
+.aceite-wrap.checked { border-color: var(--accent); background: var(--accent-lt); }
+.aceite-wrap input { display: none; }
+.aceite-check {
+  width: 20px; height: 20px; min-width: 20px; border-radius: 3px;
+  border: 2px solid #5f6368;
+  display: flex; align-items: center; justify-content: center;
+  margin-top: 1px; font-size: 12px; font-weight: 800; color: #fff;
+  transition: background .15s, border-color .15s;
+}
+.aceite-check.checked { background: var(--accent); border-color: var(--accent); }
+.aceite-text { font-size: 14px; color: var(--text2); line-height: 1.6; }
+
+/* ══════════════════════════════════════════════════
+   CEP — spinner e status
+══════════════════════════════════════════════════ */
+.cep-wrap { position: relative; }
+.cep-spinner {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  width: 16px; height: 16px; display: none;
+  border: 2px solid #e0e0e0; border-top-color: var(--accent);
+  border-radius: 50%; animation: spin .7s linear infinite; pointer-events: none;
+}
+.cep-spinner.show { display: block; }
+@keyframes spin { to { transform: translateY(-50%) rotate(360deg); } }
+
+/* ══════════════════════════════════════════════════
+   UPLOAD DE ARQUIVOS
+══════════════════════════════════════════════════ */
+.upload-zone {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 20px 16px;
+  text-align: center;
+  transition: border-color .2s, background .2s;
+  cursor: pointer;
+  position: relative;
+}
+.upload-zone:hover { border-color: var(--accent); background: var(--accent-lt); }
+.upload-zone.has-file { border-color: var(--success); background: #f0faf0; border-style: solid; }
+.upload-zone input[type=file] {
+  position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+}
+.upload-icon {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: var(--accent-lt); border: 2px solid var(--accent-brd);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 12px; transition: background .2s;
+}
+.upload-zone:hover .upload-icon, .upload-zone.has-file .upload-icon {
+  background: #fff;
+}
+.upload-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.upload-hint  { font-size: 12px; color: var(--text3); margin-bottom: 12px; }
+.upload-btn-visual {
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 1px solid var(--accent-brd); background: #fff;
+  color: var(--accent); font-size: 13px; font-weight: 600;
+  border-radius: var(--radius-sm); padding: 7px 16px;
+  pointer-events: none;
+}
+.upload-zone.has-file .upload-btn-visual { display: none; }
+
+
+/* Preview de arquivos selecionados */
+.upload-preview-list {
+  margin-top: 12px; display: none;
+  flex-direction: column; gap: 8px;
+  text-align: left;
+}
+.upload-preview-list.show { display: flex; }
+.upload-preview-item {
+  display: flex; align-items: center; gap: 10px;
+  background: #fff; border: 1px solid #c8e6c9;
+  border-radius: var(--radius-sm); padding: 8px 12px;
+  font-size: 13px; color: var(--text);
+}
+.upload-preview-item .preview-thumb {
+  width: 36px; height: 36px; border-radius: 4px;
+  object-fit: cover; flex-shrink: 0;
+  background: var(--border);
+}
+.upload-preview-item .preview-name {
+  flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.upload-preview-item .preview-remove {
+  color: var(--error); cursor: pointer; font-size: 16px;
+  line-height: 1; padding: 2px 4px; border-radius: 2px;
+  flex-shrink: 0; z-index: 10; position: relative;
+}
+.upload-preview-item .preview-remove:hover { background: var(--accent-lt); }
+
+/* Sub-zonas CNH (frente e verso) */
+.upload-dual {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+}
+.upload-zone-sm {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 16px 12px;
+  text-align: center;
+  transition: border-color .2s, background .2s;
+  cursor: pointer;
+  position: relative;
+}
+.upload-zone-sm:hover { border-color: var(--accent); background: var(--accent-lt); }
+.upload-zone-sm.has-file { border-color: var(--success); background: #f0faf0; border-style: solid; }
+.upload-zone-sm input[type=file] {
+  position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+}
+.upload-zone-sm .upload-label {
+  font-size: 12px; font-weight: 600; color: var(--text2);
+  text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px;
+}
+.upload-zone-sm .upload-zone-icon {
+  font-size: 24px; margin-bottom: 6px; display: block;
+}
+.upload-zone-sm .upload-zone-hint {
+  font-size: 11px; color: var(--text3); line-height: 1.4;
+}
+.upload-zone-sm.has-file .upload-file-name {
+  font-size: 12px; color: var(--success); font-weight: 600;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  margin-top: 4px;
+}
+
+/* Badge de status de upload (Drive) */
+.upload-status-badge {
+  display: inline-block; font-size: 11px; font-weight: 600;
+  padding: 3px 8px; border-radius: 10px; margin-top: 6px;
+  pointer-events: none;
+}
+.upload-status-badge.uploading { background: #e3f2fd; color: #1565c0; }
+.upload-status-badge.done      { background: #e6f4ea; color: #1e8e3e; }
+.upload-status-badge.error     { background: #fce4e4; color: #c62828; }
+
+/* ══════════════════════════════════════════════════
+   BOTÃO ENVIAR
+══════════════════════════════════════════════════ */
+.btn-submit {
+  width: 100%; justify-content: center;
+  background: var(--accent); color: #fff;
+  font-size: 15px; padding: 14px;
+  border-radius: var(--radius-sm); margin-top: 24px;
+  border: none; cursor: pointer; font-family: inherit; font-weight: 600;
+  transition: background .2s; display: flex; align-items: center; gap: 8px;
+}
+.btn-submit:hover { background: var(--accent-dk); }
+.btn-submit:disabled { background: #ccc; cursor: default; }
+
+/* ══════════════════════════════════════════════════
+   SUCESSO
+══════════════════════════════════════════════════ */
+.success-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border-top: 10px solid var(--success);
+  box-shadow: 0 1px 3px rgba(0,0,0,.12), 0 2px 8px rgba(0,0,0,.08);
+  padding: 48px 28px; text-align: center;
+  margin-top: 24px;
+}
+.success-icon {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: #e6f4ea; border: 2px solid #a8d5b1;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; margin: 0 auto 20px;
+  animation: popIn .4s cubic-bezier(.175,.885,.32,1.275);
+}
+@keyframes popIn { from{transform:scale(0);opacity:0;} to{transform:scale(1);opacity:1;} }
+.success-title { font-size: 22px; font-weight: 600; margin-bottom: 10px; color: var(--text); }
+.success-desc  { font-size: 14px; color: var(--text2); line-height: 1.7; }
+
+/* Spinner */
+.spinner {
+  display: inline-block; width: 14px; height: 14px;
+  border: 2px solid rgba(255,255,255,.4); border-top-color: #fff;
+  border-radius: 50%; animation: spinBtn .8s linear infinite; vertical-align: middle;
+}
+@keyframes spinBtn { to { transform: rotate(360deg); } }
+
+/* ══════════════════════════════════════════════════
+   RESPONSIVO
+══════════════════════════════════════════════════ */
+@media(max-width:600px) {
+  body { font-size: 16px; }
+  .form-wrap { padding: 16px 8px 80px; }
+  .section-card, .cover-card { padding: 20px 16px; }
+  .gf-options.horizontal { flex-direction: row; flex-wrap: wrap; }
+  .upload-dual { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="form-wrap">
+
+<!-- ══ FORMULÁRIO COMPLETO ══ -->
+<div class="step active" id="step-1">
+  <div class="section-card">
+
+    <!-- Cabeçalho (equivalente à capa) -->
+    <div style="text-align:center; margin-bottom:24px;">
+      <div class="cover-logo" style="margin-bottom:16px;">
+        <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="15" cy="9" r="5.5" fill="white"/>
+          <path d="M4 28c0-6.075 4.925-11 11-11s11 4.925 11 11" stroke="white" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+        </svg>
+      </div>
+      <div class="cover-badge">Confidencial &nbsp;·&nbsp; Uso Interno</div>
+      <h1 class="cover-title">Ficha de Cadastro<br><span style="font-size:20px;font-weight:500;">Corretor Associado</span></h1>
+    </div>
+
+    <!-- ════════════════════════════
+         TÓPICO: DADOS PESSOAIS
+    ════════════════════════════ -->
+    <div class="topic-section">
+      <div class="topic-title">Dados Pessoais</div>
+
+      <!-- Nome Completo -->
+      <div class="field">
+        <label class="field-label" for="nomeCompleto">Nome Completo <span class="req">*</span></label>
+        <input class="f-input" type="text" id="nomeCompleto" maxlength="100"
+          placeholder="Digite seu nome completo" oninput="limparErro('nomeCompleto')">
+        <div class="field-error" id="err-nomeCompleto">Nome completo é obrigatório.</div>
+      </div>
+
+      <!-- Apelido -->
+      <div class="field">
+        <label class="field-label" for="apelido">Apelido / Nome de Guerra</label>
+        <input class="f-input" type="text" id="apelido" maxlength="60"
+          placeholder="Digite o apelido/nome de guerra">
+      </div>
+
+      <!-- Data de Nascimento -->
+      <div class="field">
+        <label class="field-label" for="dataNascimento">Data de Nascimento <span class="req">*</span></label>
+        <input class="f-input" type="text" id="dataNascimento" maxlength="10"
+          placeholder="DD/MM/AAAA" inputmode="numeric"
+          oninput="aplicarMascaraData(this)" onblur="validarData()">
+        <div class="field-error" id="err-dataNascimento">Data inválida. Use o formato DD/MM/AAAA.</div>
+      </div>
+
+      <!-- Sexo -->
+      <div class="field">
+        <label class="field-label">Sexo <span class="req">*</span></label>
+        <div class="gf-options horizontal" id="sexoChoices">
+          <label class="gf-option" onclick="selecionarChoice(this,'sexoChoices','err-sexo')">
+            <input type="radio" name="sexo" value="Feminino" onchange="syncGfOption(this)">
+            <div class="gf-radio"><div class="gf-radio-inner"></div></div>Feminino
+          </label>
+          <label class="gf-option" onclick="selecionarChoice(this,'sexoChoices','err-sexo')">
+            <input type="radio" name="sexo" value="Masculino" onchange="syncGfOption(this)">
+            <div class="gf-radio"><div class="gf-radio-inner"></div></div>Masculino
+          </label>
+        </div>
+        <div class="field-error" id="err-sexo">Sexo é obrigatório.</div>
+      </div>
+
+      <!-- Estado Civil -->
+      <div class="field">
+        <label class="field-label" for="estadoCivil">Estado Civil <span class="req">*</span></label>
+        <select class="f-select" id="estadoCivil" onchange="limparErro('estadoCivil')">
+          <option value="">Selecione</option>
+          <option>Solteiro(a)</option>
+          <option>Casado(a)</option>
+          <option>Divorciado(a)</option>
+          <option>Viúvo(a)</option>
+          <option>Separado(a) Judicialmente</option>
+        </select>
+        <div class="field-error" id="err-estadoCivil">Selecione o estado civil.</div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════
+         TÓPICO: DOCUMENTOS
+    ════════════════════════════ -->
+    <div class="topic-section">
+      <div class="topic-title">Documentos</div>
+
+      <!-- RG -->
+      <div class="field">
+        <label class="field-label" for="rg">RG <span class="req">*</span></label>
+        <input class="f-input" type="text" id="rg" maxlength="14"
+          placeholder="00.000.000-0" oninput="mascaraRG(this);limparErro('rg')"
+          inputmode="text" autocomplete="off">
+        <div class="field-error" id="err-rg">RG é obrigatório.</div>
+      </div>
+
+      <!-- CPF -->
+      <div class="field">
+        <label class="field-label" for="cpf">CPF <span class="req">*</span></label>
+        <input class="f-input" type="text" id="cpf" maxlength="14"
+          placeholder="000.000.000-00" inputmode="numeric"
+          oninput="aplicarMascaraCPF(this)" onblur="validarCPFCampo()">
+        <div class="cpf-status" id="cpf-ok">✓ CPF válido</div>
+        <div class="cpf-status" id="cpf-err">✗ CPF inválido</div>
+        <div class="field-error" id="err-cpf">CPF é obrigatório e deve ser válido.</div>
+      </div>
+
+      <!-- CRECI -->
+      <div class="field">
+        <label class="field-label" for="creci">Número do CRECI</label>
+        <input class="f-input" type="text" id="creci" maxlength="10"
+          placeholder="Ex: 1234567" inputmode="numeric"
+          onkeypress="return /[0-9]/.test(event.key)">
+        <div class="field-hint">Apenas dígitos</div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════
+         TÓPICO: ENDEREÇO RESIDENCIAL
+    ════════════════════════════ -->
+    <div class="topic-section">
+      <div class="topic-title">Endereço Residencial</div>
+
+      <!-- CEP -->
+      <div class="field">
+        <label class="field-label" for="cep">CEP <span class="req">*</span></label>
+        <div class="cep-wrap">
+          <input class="f-input" type="text" id="cep" maxlength="9"
+            placeholder="00000-000" inputmode="numeric"
+            oninput="aplicarMascaraCEP(this); buscarCEP()"
+            onblur="limparErro('cep')">
+          <div class="cep-spinner" id="cepSpinner"></div>
+        </div>
+        <div class="field-hint" id="cepHint"></div>
+        <div class="field-error" id="err-cep">CEP inválido. Use o formato 00000-000.</div>
+      </div>
+
+      <!-- Endereço -->
+      <div class="field">
+        <label class="field-label" for="endereco">Endereço <span class="req">*</span></label>
+        <input class="f-input" type="text" id="endereco" maxlength="100"
+          placeholder="Rua, Avenida, Travessa..." oninput="limparErro('endereco')">
+        <div class="field-error" id="err-endereco">Endereço é obrigatório.</div>
+      </div>
+
+      <!-- Número -->
+      <div class="field">
+        <label class="field-label" for="numEndereco">Número <span class="req">*</span></label>
+        <input class="f-input" type="text" id="numEndereco" maxlength="10"
+          placeholder="Ex: 123" inputmode="numeric"
+          oninput="limparErro('numEndereco')">
+        <div class="field-error" id="err-numEndereco">Número é obrigatório.</div>
+      </div>
+
+      <!-- Complemento -->
+      <div class="field">
+        <label class="field-label" for="complemento">Complemento</label>
+        <input class="f-input" type="text" id="complemento" maxlength="50"
+          placeholder="Apto, Sala, Bloco, Torre...">
+      </div>
+
+      <!-- Bairro -->
+      <div class="field">
+        <label class="field-label" for="bairro">Bairro <span class="req">*</span></label>
+        <input class="f-input" type="text" id="bairro" maxlength="100"
+          placeholder="Nome do bairro" oninput="limparErro('bairro')">
+        <div class="field-error" id="err-bairro">Bairro é obrigatório.</div>
+      </div>
+
+      <!-- Cidade -->
+      <div class="field">
+        <label class="field-label" for="cidade">Cidade <span class="req">*</span></label>
+        <input class="f-input" type="text" id="cidade" maxlength="100"
+          placeholder="Nome da cidade" oninput="limparErro('cidade')">
+        <div class="field-error" id="err-cidade">Cidade é obrigatória.</div>
+      </div>
+
+      <!-- Estado (UF) -->
+      <div class="field">
+        <label class="field-label" for="uf">Estado <span class="req">*</span></label>
+        <select class="f-select" id="uf" onchange="limparErro('uf')">
+          <option value="">Selecione o estado</option>
+          <option>AC</option><option>AL</option><option>AP</option><option>AM</option>
+          <option>BA</option><option>CE</option><option>DF</option><option>ES</option>
+          <option>GO</option><option>MA</option><option>MT</option><option>MS</option>
+          <option>MG</option><option>PA</option><option>PB</option><option>PR</option>
+          <option>PE</option><option>PI</option><option>RJ</option><option>RN</option>
+          <option>RS</option><option>RO</option><option>RR</option><option>SC</option>
+          <option>SP</option><option>SE</option><option>TO</option>
+        </select>
+        <div class="field-error" id="err-uf">Selecione o estado.</div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════
+         TÓPICO: CONTATO
+    ════════════════════════════ -->
+    <div class="topic-section">
+      <div class="topic-title">Contato</div>
+
+      <!-- Celular / WhatsApp -->
+      <div class="field">
+        <label class="field-label" for="celular">Telefone / WhatsApp <span class="req">*</span></label>
+        <input class="f-input" type="text" id="celular" maxlength="15"
+          placeholder="(00) 00000-0000" inputmode="numeric"
+          oninput="aplicarMascaraTel(this)" onblur="validarTel(this,'err-celular')">
+        <div class="field-error" id="err-celular">Telefone inválido. Use (00) 00000-0000.</div>
+      </div>
+
+      <!-- E-mail Pessoal -->
+      <div class="field">
+        <label class="field-label" for="emailPessoal">
+          E-mail Pessoal <span class="req">*</span>
+          <span class="note">não utilizar e-mail corporativo da imobiliária</span>
+        </label>
+        <input class="f-input" type="email" id="emailPessoal"
+          placeholder="email@gmail.com"
+          oninput="limparErro('emailPessoal')" onblur="validarEmailPessoal()">
+        <div class="field-error" id="err-emailPessoal">E-mail pessoal inválido.</div>
+        <div class="field-error" id="err-emailCorp">Não utilize o e-mail corporativo da imobiliária. Informe um e-mail pessoal.</div>
+      </div>
+
+      <!-- Possui Empresa PJ -->
+      <div class="field">
+        <label class="field-label">Possui empresa (PJ)? <span class="req">*</span></label>
+        <div class="gf-options horizontal" id="pjChoices">
+          <label class="gf-option" onclick="selecionarPJ(this, true)">
+            <input type="radio" name="possuiPJ" value="Sim" onchange="syncGfOption(this)">
+            <div class="gf-radio"><div class="gf-radio-inner"></div></div>Sim
+          </label>
+          <label class="gf-option" onclick="selecionarPJ(this, false)">
+            <input type="radio" name="possuiPJ" value="Não" onchange="syncGfOption(this)">
+            <div class="gf-radio"><div class="gf-radio-inner"></div></div>Não
+          </label>
+        </div>
+        <div class="cond-field hidden field-hint" id="pj-aviso" style="color:#e65100;margin-top:8px;margin-bottom:0">
+          ⚠ Ao selecionar "Sim", Nome da Empresa e CNPJ tornam-se obrigatórios.
+        </div>
+        <div class="field-error" id="err-possuiPJ">Informe se possui empresa (PJ).</div>
+      </div>
+
+      <!-- Nome da Empresa (condicional) -->
+      <div class="cond-field hidden field" id="campo-nomeEmpresa">
+        <label class="field-label" for="nomeEmpresa">Nome da Empresa <span class="req" id="pj-req-empresa">*</span></label>
+        <input class="f-input" type="text" id="nomeEmpresa" maxlength="100"
+          placeholder="Razão social ou nome fantasia"
+          oninput="limparErro('nomeEmpresa')">
+        <div class="field-error" id="err-nomeEmpresa">Nome da empresa é obrigatório.</div>
+      </div>
+
+      <!-- CNPJ (condicional) -->
+      <div class="cond-field hidden field" id="campo-cnpj">
+        <label class="field-label" for="cnpj">CNPJ <span class="req" id="pj-req-cnpj">*</span></label>
+        <input class="f-input" type="text" id="cnpj" maxlength="18"
+          placeholder="00.000.000/0000-00" inputmode="numeric"
+          oninput="aplicarMascaraCNPJ(this)" onblur="validarCNPJCampo()">
+        <div class="cpf-status" id="cnpj-ok">✓ CNPJ válido</div>
+        <div class="cpf-status" id="cnpj-err">✗ CNPJ inválido</div>
+        <div class="field-error" id="err-cnpj-req">CNPJ é obrigatório e deve ser válido.</div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════
+         TÓPICO: DADOS BANCÁRIOS
+    ════════════════════════════ -->
+    <div class="topic-section">
+      <div class="topic-title">Dados Bancários para Recebimento de Comissão</div>
+
+      <!-- Banco -->
+      <div class="field">
+        <label class="field-label" for="banco">Banco <span class="req">*</span></label>
+        <select class="f-select" id="banco" onchange="limparErro('banco')">
+          <option value="">Selecione o banco</option>
+          <optgroup label="── Principais ──">
+            <option>001 – Banco do Brasil S.A.</option>
+            <option>033 – Banco Santander (Brasil) S.A.</option>
+            <option>104 – Caixa Econômica Federal</option>
+            <option>237 – Banco Bradesco S.A.</option>
+            <option>341 – Itaú Unibanco S.A.</option>
+            <option>260 – Nu Pagamentos S.A. (Nubank)</option>
+            <option>077 – Banco Inter S.A.</option>
+            <option>336 – Banco C6 S.A.</option>
+            <option>290 – PagSeguro Internet S.A.</option>
+            <option>323 – Mercado Pago</option>
+          </optgroup>
+          <optgroup label="── Outros (por código) ──">
+            <option>003 – Banco da Amazônia S.A.</option>
+            <option>004 – Banco do Nordeste do Brasil S.A.</option>
+            <option>021 – Banestes S.A.</option>
+            <option>025 – Banco Alfa S.A.</option>
+            <option>036 – Banco Bradesco BBI S.A.</option>
+            <option>041 – Banco do Estado do RS S.A. (Banrisul)</option>
+            <option>047 – Banco do Estado de Sergipe S.A.</option>
+            <option>069 – Banco Crefisa S.A.</option>
+            <option>070 – BRB – Banco de Brasília S.A.</option>
+            <option>085 – Cooperativa Central de Crédito – AILOS</option>
+            <option>097 – Credisis</option>
+            <option>099 – Uniprime Central</option>
+            <option>136 – Unicred do Brasil</option>
+            <option>197 – Stone Pagamentos S.A.</option>
+            <option>208 – Banco BTG Pactual S.A.</option>
+            <option>212 – Banco Original S.A.</option>
+            <option>218 – Banco BS2 S.A.</option>
+            <option>246 – Banco ABC Brasil S.A.</option>
+            <option>318 – Banco BMG S.A.</option>
+            <option>348 – Banco XP S.A.</option>
+            <option>380 – PicPay Serviços S.A.</option>
+            <option>389 – Banco Mercantil do Brasil S.A.</option>
+            <option>422 – Banco Safra S.A.</option>
+            <option>505 – Banco Credit Suisse (Brasil) S.A.</option>
+            <option>633 – Banco Rendimento S.A.</option>
+            <option>637 – Banco Sofisa S.A.</option>
+            <option>707 – Banco Daycoval S.A.</option>
+            <option>735 – Banco Neon S.A.</option>
+            <option>745 – Citibank N.A.</option>
+            <option>748 – Sicredi</option>
+            <option>756 – Bancoob / Sicoob</option>
+          </optgroup>
+        </select>
+        <div class="field-error" id="err-banco">Selecione o banco.</div>
+      </div>
+
+      <!-- Agência -->
+      <div class="field">
+        <label class="field-label" for="agencia">Agência <span class="req">*</span></label>
+        <input class="f-input" type="text" id="agencia" maxlength="4"
+          placeholder="0000" inputmode="numeric"
+          onkeypress="return /[0-9]/.test(event.key)"
+          oninput="this.value=this.value.replace(/\D/g,'');limparErro('agencia')"
+          onblur="padAgencia()">
+        <div class="field-hint">Até 4 dígitos — zeros preenchidos automaticamente</div>
+        <div class="field-error" id="err-agencia">Agência inválida.</div>
+      </div>
+
+      <!-- Conta + Dígito (campo unificado) -->
+      <div class="field">
+        <label class="field-label" for="contaDigito">Conta <span class="req">*</span></label>
+        <input class="f-input" type="text" id="contaDigito" maxlength="14"
+          placeholder="00000000000-0" inputmode="numeric"
+          oninput="aplicarMascaraContaDig(this); limparErro('contaDigito')">
+        <div class="field-hint">Digite os números da conta — o dígito verificador é o último após o traço</div>
+        <div class="field-error" id="err-contaDigito">Conta inválida. Ex: 12345678-9</div>
+      </div>
+
+      <!-- Tipo de Conta -->
+      <div class="field">
+        <label class="field-label" for="tipoConta">Tipo de Conta <span class="req">*</span></label>
+        <select class="f-select" id="tipoConta" onchange="limparErro('tipoConta')">
+          <option value="">Selecione o tipo</option>
+          <option>Corrente</option>
+          <option>Poupança</option>
+        </select>
+        <div class="field-error" id="err-tipoConta">Selecione o tipo de conta.</div>
+      </div>
+
+      <!-- Chave PIX -->
+      <div class="field">
+        <label class="field-label" for="chavePix">Chave PIX</label>
+        <input class="f-input" type="text" id="chavePix" maxlength="100"
+          placeholder="CPF, CNPJ, celular, e-mail ou chave aleatória">
+        <div class="field-hint">Digite a chave PIX da forma como está cadastrada</div>
+      </div>
+
+      <!-- Favorecido -->
+      <div class="field">
+        <label class="field-label" for="favorecido">Nome do Favorecido</label>
+        <input class="f-input" type="text" id="favorecido" maxlength="60"
+          placeholder="Nome completo do favorecido">
+      </div>
+
+      <!-- CPF do Favorecido -->
+      <div class="field">
+        <label class="field-label" for="cpfFavorecido">CPF do Favorecido</label>
+        <input class="f-input" type="text" id="cpfFavorecido" maxlength="14"
+          placeholder="000.000.000-00" inputmode="numeric"
+          oninput="aplicarMascaraCPF_Fav(this)" onblur="validarCPFFavorecido()">
+        <div class="cpf-status" id="cpffav-ok">✓ CPF válido</div>
+        <div class="cpf-status" id="cpffav-err">✗ CPF inválido</div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════
+         TÓPICO: DOCUMENTOS E FOTOS
+    ════════════════════════════ -->
+    <div class="topic-section">
+      <div class="topic-title">Documentos e Fotos para Anexar</div>
+      <p class="field-desc" style="margin-bottom:20px">
+        As fotos e documentos são armazenados de forma segura e utilizados exclusivamente
+        para validação do cadastro.
+      </p>
+
+      <!-- Selfie -->
+      <div class="field">
+        <label class="field-label">Selfie Atual</label>
+        <p class="field-desc">Uma foto recente do rosto, bem iluminada. Pelo celular, você pode usar a câmera diretamente.</p>
+        <div class="upload-zone" id="selfieZone">
+          <input type="file" id="selfieFile" accept="image/*"
+            onchange="handleSingleUpload('selfieFile','selfiePreview','selfieZone','selfieNomeHint')">
+          <div class="upload-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C62828" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+          </div>
+          <div class="upload-title">Selfie Atual</div>
+          <div class="upload-hint">Clique para abrir a câmera ou escolher um arquivo</div>
+          <div class="upload-btn-visual">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            Tirar foto / Escolher arquivo
+          </div>
+        </div>
+        <div class="upload-preview-list" id="selfiePreview"></div>
+        <div class="field-hint" id="selfieNomeHint"></div>
+      </div>
+
+      <!-- CNH / RG frente e verso -->
+      <div class="field">
+        <label class="field-label">Foto da CNH ou RG</label>
+        <p class="field-desc">Envie a frente e o verso do documento. Você também pode enviar um único arquivo PDF com a CNH digital.</p>
+        <div class="upload-dual">
+          <!-- Frente -->
+          <div>
+            <div class="upload-zone" id="cnhFrenteZone">
+              <input type="file" id="cnhFrenteFile" accept="image/*"
+                onchange="handleDocUpload('cnhFrenteFile','cnhFrenteZone','cnhFrenteNome')">
+              <div class="upload-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C62828" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="12" cy="12" r="3"/>
+                  <path d="M16 4v2M8 4v2"/>
+                </svg>
+              </div>
+              <div class="upload-title">Frente</div>
+              <div class="upload-hint">Clique para abrir a câmera ou escolher um arquivo</div>
+              <div class="upload-btn-visual">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                Tirar foto / Escolher arquivo
+              </div>
+            </div>
+            <div class="upload-file-name" id="cnhFrenteNome" style="margin-top:6px;font-size:12px;color:var(--success);font-weight:600"></div>
+          </div>
+          <!-- Verso -->
+          <div>
+            <div class="upload-zone" id="cnhVersoZone">
+              <input type="file" id="cnhVersoFile" accept="image/*"
+                onchange="handleDocUpload('cnhVersoFile','cnhVersoZone','cnhVersoNome')">
+              <div class="upload-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C62828" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="12" cy="12" r="3"/>
+                  <path d="M16 4v2M8 4v2"/>
+                </svg>
+              </div>
+              <div class="upload-title">Verso</div>
+              <div class="upload-hint">Clique para abrir a câmera ou escolher um arquivo</div>
+              <div class="upload-btn-visual">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                Tirar foto / Escolher arquivo
+              </div>
+            </div>
+            <div class="upload-file-name" id="cnhVersoNome" style="margin-top:6px;font-size:12px;color:var(--success);font-weight:600"></div>
+          </div>
+        </div>
+        <div class="field-hint" style="margin-top:8px">Se tiver a CNH digital em PDF, basta enviar em um dos campos acima.</div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════
+         ACEITE E ENVIO
+    ════════════════════════════ -->
+    <div class="topic-section">
+      <div class="topic-title">Confirmação</div>
+
+      <div class="field">
+        <label class="field-label">Termo de Aceite <span class="req">*</span></label>
+        <label class="aceite-wrap" id="aceiteWrap" onclick="toggleAceite()">
+          <input type="checkbox" id="aceite">
+          <div class="aceite-check" id="aceiteCheck"></div>
+          <span class="aceite-text">
+            Declaro que as informações fornecidas são verdadeiras e consinto com o tratamento
+            dos meus dados pessoais para as finalidades descritas, em conformidade com a LGPD
+            (Lei nº 13.709/2018).
+          </span>
+        </label>
+        <div class="field-error" id="err-aceite">Por favor, aceite os termos para enviar.</div>
+      </div>
+
+      <button class="btn-submit" onclick="enviarFormulario()" id="btnEnviar">
+        Enviar Ficha de Cadastro ✓
+      </button>
+    </div>
+
+  </div><!-- /section-card -->
+</div><!-- /step-1 -->
+
+<!-- ══ STEP 2 — SUCESSO ══ -->
+<div class="step" id="step-2">
+  <div class="success-card">
+    <div class="success-icon">✓</div>
+    <h2 class="success-title">Ficha enviada com sucesso!</h2>
+    <p class="success-desc">
+      Obrigado(a), <strong id="nomeConfirmacao"></strong>.<br><br>
+      Sua ficha de cadastro foi recebida com sucesso.<br>
+      Em caso de dúvidas, entre em contato com o departamento responsável.
+    </p>
+  </div>
+</div>
+
+</div><!-- /form-wrap -->
+
+<script>
+// ══════════════════════════════════════════════════
+//  CONFIGURAÇÃO GLOBAL — Apps Script
+// ══════════════════════════════════════════════════
+const SHEET_URL  = 'https://script.google.com/macros/s/AKfycbwn3V9lEcarqy1pe1d6GDboaOLufpXhfLHLOX8gEfbVXIRoNGLJFToWnJRp2m_1Q0qP/exec';
+const FORM_TOKEN = '5gZwEvcxAV7i5t5m74Fl3hgdE4lr5DP8ej0fkOEOp177AFrO02FkLKQ1sHfJcGz9';
+
+// Status de upload por tipo de arquivo (null=não selecionado, 'uploading', url ou '')
+const _uploadStatus = { selfie: null, cnh_frente: null, cnh_verso: null };
+
+// ══════════════════════════════════════════════════
+//  NAVEGAÇÃO
+// ══════════════════════════════════════════════════
+function irParaStep(n) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step-' + n).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ══════════════════════════════════════════════════
+//  HELPERS DE ERROS
+// ══════════════════════════════════════════════════
+function v(id)           { return (document.getElementById(id).value || '').trim(); }
+function mostrarErro(id) { const el = document.getElementById(id); if (el) el.classList.add('show'); }
+function esconderErro(id){ const el = document.getElementById(id); if (el) el.classList.remove('show'); }
+function limparErro(id)  { esconderErro('err-' + id); }
+
+function scrollToFirstError() {
+  const f = document.querySelector('.field-error.show');
+  if (f) f.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// ══════════════════════════════════════════════════
+//  SYNC TECLADO NOS RADIO/CHECKBOX
+// ══════════════════════════════════════════════════
+function syncGfOption(input) {
+  const group = input.closest('.gf-options');
+  if (!group) return;
+  group.querySelectorAll('.gf-option').forEach(opt => opt.classList.remove('selected'));
+  input.closest('.gf-option').classList.add('selected');
+  if (input.name === 'possuiPJ') selecionarPJ(input.closest('.gf-option'), input.value === 'Sim');
+}
+
+function selecionarChoice(el, groupId, errId) {
+  document.querySelectorAll('#' + groupId + ' .gf-option').forEach(i => i.classList.remove('selected'));
+  el.classList.add('selected');
+  el.querySelector('input').checked = true;
+  if (errId) esconderErro(errId);
+}
+
+// ══════════════════════════════════════════════════
+//  PJ CONDICIONAL
+// ══════════════════════════════════════════════════
+function selecionarPJ(el, isPJ) {
+  document.querySelectorAll('#pjChoices .gf-option').forEach(i => i.classList.remove('selected'));
+  el.classList.add('selected');
+  el.querySelector('input').checked = true;
+  document.getElementById('pj-aviso').classList.toggle('hidden', !isPJ);
+  document.getElementById('campo-nomeEmpresa').classList.toggle('hidden', !isPJ);
+  document.getElementById('campo-cnpj').classList.toggle('hidden', !isPJ);
+  if (!isPJ) {
+    document.getElementById('nomeEmpresa').value = '';
+    document.getElementById('cnpj').value = '';
+    document.getElementById('cnpj-ok').classList.remove('valid');
+    document.getElementById('cnpj-err').classList.remove('invalid');
+    esconderErro('err-nomeEmpresa');
+    esconderErro('err-cnpj-req');
+  }
+}
+
+// ══════════════════════════════════════════════════
+//  ACEITE
+// ══════════════════════════════════════════════════
+function toggleAceite() {
+  const cb   = document.getElementById('aceite');
+  const ch   = document.getElementById('aceiteCheck');
+  const wrap = document.getElementById('aceiteWrap');
+  cb.checked = !cb.checked;
+  ch.classList.toggle('checked', cb.checked);
+  wrap.classList.toggle('checked', cb.checked);
+  ch.textContent = cb.checked ? '✓' : '';
+  esconderErro('err-aceite');
+}
+
+// ══════════════════════════════════════════════════
+//  BUSCA DE CEP (ViaCEP)
+// ══════════════════════════════════════════════════
+let _cepTimer = null;
+
+function buscarCEP() {
+  clearTimeout(_cepTimer);
+  const cepVal = document.getElementById('cep').value.replace(/\D/g, '');
+  if (cepVal.length < 8) {
+    // Limpa os campos auto-preenchidos se o CEP for alterado/apagado
+    if (document.getElementById('endereco').readOnly) liberarCamposCEP();
+    return;
+  }
+  _cepTimer = setTimeout(async () => {
+    const spinner  = document.getElementById('cepSpinner');
+    const hint     = document.getElementById('cepHint');
+    hint.textContent = '';
+    hint.className = 'field-hint';
+    spinner.classList.add('show');
+    try {
+      const r = await fetch(`https://viacep.com.br/ws/${cepVal}/json/`);
+      const d = await r.json();
+      spinner.classList.remove('show');
+      if (d.erro) {
+        liberarCamposCEP();
+        hint.textContent = 'CEP não encontrado. Confirme se digitou o número correto ou preencha o endereço manualmente.';
+        hint.className = 'field-hint warning';
+        return;
+      }
+      // Preencher campos
+      preencherCampoCEP('endereco', d.logradouro || '');
+      preencherCampoCEP('bairro',   d.bairro     || '');
+      preencherCampoCEP('cidade',   d.localidade || '');
+      preencherSelectCEP('uf',      d.uf         || '');
+      hint.textContent = '✓ Endereço preenchido automaticamente pelo CEP';
+      hint.className = 'field-hint success';
+      // Focar no número
+      if (d.logradouro) document.getElementById('numEndereco').focus();
+    } catch(e) {
+      spinner.classList.remove('show');
+      liberarCamposCEP();
+      hint.textContent = 'Não foi possível consultar o CEP. Preencha manualmente.';
+      hint.className = 'field-hint warning';
+    }
+  }, 600);
+}
+
+function preencherCampoCEP(id, valor) {
+  const inp = document.getElementById(id);
+  if (valor) {
+    inp.value = valor;
+    inp.classList.add('cep-filled');
+    inp.readOnly = true;
+    limparErro(id);
+  } else {
+    inp.readOnly = false;
+    inp.classList.remove('cep-filled');
+  }
+}
+
+function preencherSelectCEP(id, valor) {
+  const sel = document.getElementById(id);
+  if (valor) {
+    sel.value = valor;
+    sel.classList.add('cep-filled');
+    limparErro(id);
+  } else {
+    sel.classList.remove('cep-filled');
+  }
+}
+
+function liberarCamposCEP() {
+  ['endereco','bairro','cidade'].forEach(id => {
+    const inp = document.getElementById(id);
+    if (inp.classList.contains('cep-filled')) inp.value = '';
+    inp.readOnly = false;
+    inp.classList.remove('cep-filled');
+  });
+  const ufSel = document.getElementById('uf');
+  if (ufSel.classList.contains('cep-filled')) ufSel.value = '';
+  ufSel.classList.remove('cep-filled');
+  document.getElementById('cepHint').textContent = '';
+}
+
+// ══════════════════════════════════════════════════
+//  UPLOAD DE ARQUIVOS (UI visual)
+// ══════════════════════════════════════════════════
+function handleSingleUpload(inputId, previewId, zoneId, hintId) {
+  const input   = document.getElementById(inputId);
+  const preview = document.getElementById(previewId);
+  const zone    = document.getElementById(zoneId);
+  const hint    = document.getElementById(hintId);
+  const file    = input.files[0];
+  preview.innerHTML = '';
+  preview.classList.remove('show');
+  if (!file) { zone.classList.remove('has-file'); hint.textContent = ''; return; }
+  zone.classList.add('has-file');
+  hint.textContent = '';
+  const item = document.createElement('div');
+  item.className = 'upload-preview-item';
+  if (file.type.startsWith('image/')) {
+    const img = document.createElement('img');
+    img.className = 'preview-thumb';
+    img.src = URL.createObjectURL(file);
+    item.appendChild(img);
+  } else {
+    const icon = document.createElement('div');
+    icon.className = 'preview-thumb';
+    icon.style.cssText = 'display:flex;align-items:center;justify-content:center;font-size:18px;background:#f5f5f5';
+    icon.textContent = '📄';
+    item.appendChild(icon);
+  }
+  const name = document.createElement('div');
+  name.className = 'preview-name';
+  name.textContent = file.name;
+  const size = document.createElement('div');
+  size.style.cssText = 'font-size:11px;color:var(--text3);white-space:nowrap';
+  size.textContent = formatBytes(file.size);
+  const col = document.createElement('div');
+  col.style.cssText = 'flex:1;overflow:hidden';
+  col.appendChild(name); col.appendChild(size);
+  const rem = document.createElement('div');
+  rem.className = 'preview-remove';
+  rem.textContent = '×';
+  rem.onclick = (e) => {
+    e.stopPropagation();
+    input.value = '';
+    preview.innerHTML = '';
+    preview.classList.remove('show');
+    zone.classList.remove('has-file');
+  };
+  item.appendChild(col); item.appendChild(rem);
+  preview.appendChild(item);
+  preview.classList.add('show');
+}
+
+function handleDocUpload(inputId, zoneId, nomeId) {
+  const input = document.getElementById(inputId);
+  const zone  = document.getElementById(zoneId);
+  const nome  = document.getElementById(nomeId);
+  const file  = input.files[0];
+  if (!file) { zone.classList.remove('has-file'); nome.textContent = ''; return; }
+  zone.classList.add('has-file');
+  nome.textContent = '✓ ' + (file.name.length > 22 ? file.name.substring(0,20) + '...' : file.name);
+}
+
+function formatBytes(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1048576) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/1048576).toFixed(1) + ' MB';
+}
+
+// ══════════════════════════════════════════════════
+//  MÁSCARAS
+// ══════════════════════════════════════════════════
+function mascaraRG(inp) {
+  // Aceita dígitos e X/x (dígito verificador de alguns estados)
+  let v = inp.value.replace(/[^0-9Xx]/gi, '').toUpperCase();
+  if (v.length > 9) v = v.substring(0, 9);
+  // Formato: 00.000.000-X
+  v = v.replace(/^(\d{2})(\d)/,'$1.$2')
+       .replace(/^(\d{2})\.(\d{3})(\d)/,'$1.$2.$3')
+       .replace(/^(\d{2})\.(\d{3})\.(\d{3})([0-9X])/,'$1.$2.$3-$4');
+  inp.value = v;
+}
+
+function aplicarMascaraCPF(inp) {
+  inp.value = inp.value.replace(/\D/g,'')
+    .replace(/(\d{3})(\d)/,'$1.$2')
+    .replace(/(\d{3})(\d)/,'$1.$2')
+    .replace(/(\d{3})(\d{1,2})/,'$1-$2')
+    .replace(/(-\d{2})\d+$/,'$1');
+  limparErro('cpf');
+  document.getElementById('cpf-ok').classList.remove('valid');
+  document.getElementById('cpf-err').classList.remove('invalid');
+}
+
+function aplicarMascaraCPF_Fav(inp) {
+  inp.value = inp.value.replace(/\D/g,'')
+    .replace(/(\d{3})(\d)/,'$1.$2')
+    .replace(/(\d{3})(\d)/,'$1.$2')
+    .replace(/(\d{3})(\d{1,2})/,'$1-$2')
+    .replace(/(-\d{2})\d+$/,'$1');
+  document.getElementById('cpffav-ok').classList.remove('valid');
+  document.getElementById('cpffav-err').classList.remove('invalid');
+}
+
+function aplicarMascaraTel(inp) {
+  let vv = inp.value.replace(/\D/g,'');
+  if (vv.length <= 10) vv = vv.replace(/(\d{2})(\d)/,'($1) $2').replace(/(\d{4})(\d)/,'$1-$2');
+  else vv = vv.replace(/(\d{2})(\d)/,'($1) $2').replace(/(\d{5})(\d)/,'$1-$2').replace(/(-\d{4})\d+$/,'$1');
+  inp.value = vv;
+}
+
+function aplicarMascaraData(inp) {
+  inp.value = inp.value.replace(/\D/g,'')
+    .replace(/(\d{2})(\d)/,'$1/$2')
+    .replace(/(\d{2})(\d)/,'$1/$2')
+    .replace(/(\/\d{4})\d+$/,'$1');
+}
+
+function aplicarMascaraCEP(inp) {
+  inp.value = inp.value.replace(/\D/g,'')
+    .replace(/(\d{5})(\d)/,'$1-$2')
+    .replace(/(-\d{3})\d+$/,'$1');
+  limparErro('cep');
+  // Se CEP foi apagado ou alterado, libera os campos
+  if (inp.value.replace(/\D/g,'').length < 8) liberarCamposCEP();
+}
+
+function aplicarMascaraCNPJ(inp) {
+  inp.value = inp.value.replace(/\D/g,'')
+    .replace(/(\d{2})(\d)/,'$1.$2')
+    .replace(/(\d{3})(\d)/,'$1.$2')
+    .replace(/(\d{3})(\d)/,'$1/$2')
+    .replace(/(\d{4})(\d{1,2})/,'$1-$2')
+    .replace(/(-\d{2})\d+$/,'$1');
+  document.getElementById('cnpj-ok').classList.remove('valid');
+  document.getElementById('cnpj-err').classList.remove('invalid');
+  esconderErro('err-cnpj-req');
+}
+
+function aplicarMascaraContaDig(inp) {
+  let raw = inp.value.replace(/[^0-9Xx]/gi, '');
+  if (raw.length > 13) raw = raw.slice(0, 13);
+  if (raw.length > 1) {
+    inp.value = raw.slice(0, -1) + '-' + raw.slice(-1);
+  } else {
+    inp.value = raw;
+  }
+}
+
+function padAgencia() {
+  const inp = document.getElementById('agencia');
+  if (inp.value) inp.value = inp.value.replace(/\D/g,'').padStart(4,'0');
+}
+
+// ══════════════════════════════════════════════════
+//  VALIDAÇÕES
+// ══════════════════════════════════════════════════
+function validarCPF(cpf) {
+  cpf = cpf.replace(/\D/g,'');
+  if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
+  let s = 0; for (let i = 0; i < 9; i++) s += +cpf[i] * (10 - i);
+  let r = (s * 10) % 11; if (r === 10 || r === 11) r = 0; if (r !== +cpf[9]) return false;
+  s = 0; for (let i = 0; i < 10; i++) s += +cpf[i] * (11 - i);
+  r = (s * 10) % 11; if (r === 10 || r === 11) r = 0; return r === +cpf[10];
+}
+
+function validarCPFCampo() {
+  const val = document.getElementById('cpf').value.replace(/\D/g,'');
+  const ok  = document.getElementById('cpf-ok');
+  const er  = document.getElementById('cpf-err');
+  ok.classList.remove('valid'); er.classList.remove('invalid');
+  if (!val) return;
+  if (validarCPF(val)) ok.classList.add('valid');
+  else { er.classList.add('invalid'); mostrarErro('err-cpf'); }
+}
+
+function validarCPFFavorecido() {
+  const val = document.getElementById('cpfFavorecido').value.replace(/\D/g,'');
+  const ok  = document.getElementById('cpffav-ok');
+  const er  = document.getElementById('cpffav-err');
+  ok.classList.remove('valid'); er.classList.remove('invalid');
+  if (!val) return;
+  if (validarCPF(val)) ok.classList.add('valid');
+  else er.classList.add('invalid');
+}
+
+function validarCNPJ(cnpj) {
+  cnpj = cnpj.replace(/\D/g,'');
+  if (cnpj.length !== 14 || /^(\d)\1+$/.test(cnpj)) return false;
+  let t = cnpj.length - 2, d = cnpj.substring(t), n = cnpj.substring(0,t), s = 0, p = t - 7;
+  for (let i = t; i >= 1; i--) { s += +n.charAt(t - i) * p--; if (p < 2) p = 9; }
+  let rr = s % 11 < 2 ? 0 : 11 - s % 11;
+  if (rr !== +d.charAt(0)) return false;
+  t++; n = cnpj.substring(0,t); s = 0; p = t - 7;
+  for (let i = t; i >= 1; i--) { s += +n.charAt(t - i) * p--; if (p < 2) p = 9; }
+  rr = s % 11 < 2 ? 0 : 11 - s % 11;
+  return rr === +d.charAt(1);
+}
+
+function validarCNPJCampo() {
+  const val = document.getElementById('cnpj').value.replace(/\D/g,'');
+  const ok  = document.getElementById('cnpj-ok');
+  const er  = document.getElementById('cnpj-err');
+  ok.classList.remove('valid'); er.classList.remove('invalid');
+  if (!val) return;
+  if (validarCNPJ(val)) { ok.classList.add('valid'); esconderErro('err-cnpj-req'); }
+  else er.classList.add('invalid');
+}
+
+function validarDataValor() {
+  const vv = document.getElementById('dataNascimento').value;
+  if (!vv || vv.length !== 10) return false;
+  const [d, m, a] = vv.split('/').map(Number);
+  if (!d || !m || !a || d < 1 || d > 31 || m < 1 || m > 12 || a < 1900 || a > 2099) return false;
+  const dt = new Date(a, m - 1, d);
+  return dt.getFullYear() === a && dt.getMonth() === m - 1 && dt.getDate() === d;
+}
+
+function validarData() {
+  if (!validarDataValor()) mostrarErro('err-dataNascimento');
+  else esconderErro('err-dataNascimento');
+}
+
+function emailValido(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+function validarEmail(inp, errId) {
+  if (inp.value && !emailValido(inp.value)) mostrarErro(errId);
+  else esconderErro(errId);
+}
+function emailCorporativo(email) {
+  return /@lopes/i.test(email);
+}
+function validarEmailPessoal() {
+  const inp = document.getElementById('emailPessoal');
+  esconderErro('err-emailPessoal');
+  esconderErro('err-emailCorp');
+  if (!inp.value) return;
+  if (!emailValido(inp.value)) { mostrarErro('err-emailPessoal'); return; }
+  if (emailCorporativo(inp.value)) { mostrarErro('err-emailCorp'); return; }
+}
+function validarTel(inp, errId) {
+  if (inp.value.replace(/\D/g,'').length < 10) mostrarErro(errId);
+  else esconderErro(errId);
+}
+
+// ══════════════════════════════════════════════════
+//  ENVIO
+// ══════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
+//  UPLOAD DE ARQUIVOS — JSONP Chunked
+// ══════════════════════════════════════════════════
+
+/** Comprime imagem via Canvas (máx 1200px, JPEG 75%) */
+async function comprimirImagem(file) {
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const MAX = 1200, Q = 0.75;
+      let w = img.width, h = img.height;
+      if (w > MAX || h > MAX) {
+        if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+        else       { w = Math.round(w * MAX / h); h = MAX; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      canvas.toBlob((blob) => {
+        const reader = new FileReader();
+        reader.onload  = (e) => resolve({
+          base64: e.target.result.split(',')[1],
+          type:   'image/jpeg',
+          ext:    'jpg'
+        });
+        reader.onerror = () => resolve({});
+        reader.readAsDataURL(blob);
+      }, 'image/jpeg', Q);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); resolve({}); };
+    img.src = url;
+  });
+}
+
+/** @deprecated — mantido por compatibilidade, não é mais usado */
+function jsonpGet(url) {
+  return Promise.reject(new Error('jsonpGet não é mais utilizado'));
+}
+
+/** Exibe badge de status ao lado da zona de upload */
+function atualizarStatusUpload(zoneId, status) {
+  const zone = document.getElementById(zoneId);
+  if (!zone) return;
+  const prev = zone.querySelector('.upload-status-badge');
+  if (prev) prev.remove();
+  if (!status) return;
+  const badge = document.createElement('div');
+  badge.className = 'upload-status-badge ' + status;
+  badge.textContent = status === 'uploading' ? '↑ Salvando no Drive...'
+                    : status === 'done'      ? '✓ Salvo no Drive'
+                    :                          '⚠ Não enviado — tente de novo';
+  zone.appendChild(badge);
+}
+
+/**
+ * Envia um arquivo para o Google Drive via JSONP chunked:
+ * — Divide o base64 em pedaços de 4000 chars
+ * — Envia cada pedaço ao GAS via JSONP GET (bypass CORS)
+ * — GAS monta e salva no Drive, retorna o link
+ */
+async function uploadFileChunked(file, fileType, zoneId, nomeCompleto, cpf) {
+  if (!file) return '';
+  _uploadStatus[fileType] = 'uploading';
+  atualizarStatusUpload(zoneId, 'uploading');
+  try {
+    // Comprimir imagem ou ler PDF
+    let base64, mimeType, ext;
+    if (file.type.startsWith('image/')) {
+      const c = await comprimirImagem(file);
+      if (!c || !c.base64) throw new Error('comprimirImagem falhou para: ' + file.name + ' (' + file.type + ', ' + file.size + ' bytes)');
+      base64 = c.base64; mimeType = c.type; ext = c.ext;
+    } else {
+      const c = await new Promise(res => {
+        const r = new FileReader();
+        r.onload = e => res({ base64: e.target.result.split(',')[1], type: file.type, ext: file.name.split('.').pop() });
+        r.readAsDataURL(file);
+      });
+      base64 = c.base64; mimeType = c.type; ext = c.ext;
+    }
+
+    // Upload via fetch POST
+    const payload = {
+      token: FORM_TOKEN,
+      action: 'upload_file',
+      ftype: fileType,
+      base64: base64,
+      mime: mimeType,
+      ext: ext,
+      nome: nomeCompleto || 'desconhecido',
+      cpf: cpf || 'desconhecido'
+    };
+
+    const form = new FormData();
+    Object.keys(payload).forEach(k => form.append(k, payload[k]));
+
+    const response = await fetch(SHEET_URL, { method: 'POST', body: form });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+    const result = await response.json();
+    if (result.status !== 'ok') throw new Error(result.message || 'Erro desconhecido');
+    if (!result.url) throw new Error('Sem URL retornada');
+
+    _uploadStatus[fileType] = result.url;
+    atualizarStatusUpload(zoneId, 'done');
+    return result.url;
+
+  } catch(err) {
+    _uploadStatus[fileType] = '';
+    atualizarStatusUpload(zoneId, 'error');
+    return '';
+  }
+}
+
+async function enviarFormulario() {
+
+  let ok = true;
+
+  // Dados Pessoais
+  if (!v('nomeCompleto'))        { mostrarErro('err-nomeCompleto');   ok = false; }
+  if (!validarDataValor())       { mostrarErro('err-dataNascimento'); ok = false; }
+  if (!document.querySelector('input[name="sexo"]:checked')) { mostrarErro('err-sexo'); ok = false; }
+  if (!v('estadoCivil'))         { mostrarErro('err-estadoCivil');    ok = false; }
+
+  // Documentos
+  if (!v('rg'))                  { mostrarErro('err-rg'); ok = false; }
+  const cpfNum = document.getElementById('cpf').value.replace(/\D/g,'');
+  if (!cpfNum || !validarCPF(cpfNum)) { mostrarErro('err-cpf'); ok = false; }
+
+  // Endereço
+  const cepNum = document.getElementById('cep').value.replace(/\D/g,'');
+  if (cepNum.length !== 8)       { mostrarErro('err-cep');       ok = false; }
+  if (!v('endereco'))            { mostrarErro('err-endereco');   ok = false; }
+  if (!v('numEndereco'))         { mostrarErro('err-numEndereco');ok = false; }
+  if (!v('bairro'))              { mostrarErro('err-bairro');     ok = false; }
+  if (!v('cidade'))              { mostrarErro('err-cidade');     ok = false; }
+  if (!v('uf'))                  { mostrarErro('err-uf');         ok = false; }
+
+  // Contato
+  if (document.getElementById('celular').value.replace(/\D/g,'').length < 10) {
+    mostrarErro('err-celular'); ok = false;
+  }
+  const ep = document.getElementById('emailPessoal').value;
+  if (!emailValido(ep))          { mostrarErro('err-emailPessoal'); ok = false; }
+  else if (emailCorporativo(ep)) { mostrarErro('err-emailCorp');    ok = false; }
+
+  // PJ obrigatório
+  if (!document.querySelector('input[name="possuiPJ"]:checked')) { mostrarErro('err-possuiPJ'); ok = false; }
+
+  // CNPJ — obrigatório se PJ = Sim, validado sempre que preenchido
+  const isPJ = document.querySelector('input[name="possuiPJ"]:checked')?.value === 'Sim';
+  const cnpjVal = document.getElementById('cnpj').value.replace(/\D/g,'');
+  if (isPJ) {
+    if (!cnpjVal || !validarCNPJ(cnpjVal)) { mostrarErro('err-cnpj-req'); ok = false; }
+    if (!v('nomeEmpresa'))                  { mostrarErro('err-nomeEmpresa'); ok = false; }
+  } else if (cnpjVal && !validarCNPJ(cnpjVal)) {
+    document.getElementById('cnpj-err').classList.add('invalid'); ok = false;
+  }
+
+  // Dados bancários
+  if (!v('banco'))              { mostrarErro('err-banco');       ok = false; }
+  padAgencia();
+  if (!v('agencia'))            { mostrarErro('err-agencia');     ok = false; }
+  const contaDig = v('contaDigito');
+  if (!contaDig || !contaDig.includes('-') || contaDig.split('-')[0].length < 1) {
+    mostrarErro('err-contaDigito'); ok = false;
+  }
+  if (!v('tipoConta'))          { mostrarErro('err-tipoConta');   ok = false; }
+
+  // CPF Favorecido (se preenchido)
+  const cpfFav = document.getElementById('cpfFavorecido').value.replace(/\D/g,'');
+  if (cpfFav && !validarCPF(cpfFav)) {
+    document.getElementById('cpffav-err').classList.add('invalid'); ok = false;
+  }
+
+  if (!document.getElementById('aceite').checked) { mostrarErro('err-aceite'); ok = false; }
+
+  if (!ok) { scrollToFirstError(); return; }
+
+  // Extrair conta e dígito do campo unificado
+  const contaDigSplit = v('contaDigito').split('-');
+  const contaNum   = contaDigSplit[0] || '';
+  const digitoNum  = contaDigSplit[1] || '';
+
+  const btn = document.getElementById('btnEnviar');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Enviando...';
+
+  const nomeCompleto = v('nomeCompleto');
+  const cpf          = v('cpf');
+
+  // ── Passo 1: Upload de arquivos em paralelo ─────────────────────
+  const selfieFile    = document.getElementById('selfieFile').files[0];
+  const cnhFrenteFile = document.getElementById('cnhFrenteFile').files[0];
+  const cnhVersoFile  = document.getElementById('cnhVersoFile').files[0];
+  const temFotos = selfieFile || cnhFrenteFile || cnhVersoFile;
+
+  if (!temFotos) {
+    // Nenhum arquivo selecionado — continua sem upload
+    // Sem arquivos — apenas dados
+  } else {
+    btn.innerHTML = '<span class="spinner"></span> Enviando fotos...';
+    await Promise.allSettled([
+      uploadFileChunked(selfieFile,    'selfie',     'selfieZone',    nomeCompleto, cpf),
+      uploadFileChunked(cnhFrenteFile, 'cnh_frente', 'cnhFrenteZone', nomeCompleto, cpf),
+      uploadFileChunked(cnhVersoFile,  'cnh_verso',  'cnhVersoZone',  nomeCompleto, cpf),
+    ]);
+  } // fim temFotos
+
+  // ── Passo 2: Enviar dados do formulário via GET ─────────────────
+  btn.innerHTML = '<span class="spinner"></span> Enviando dados...';
+
+  const dados = {
+    timestamp:      new Date().toLocaleString('pt-BR'),
+    aceite:         'Sim',
+    nomeCompleto,
+    apelido:        v('apelido'),
+    dataNascimento: v('dataNascimento'),
+    sexo:           (document.querySelector('input[name="sexo"]:checked') || {value:''}).value,
+    estadoCivil:    v('estadoCivil'),
+    rg:             v('rg'),
+    cpf,
+    creci:          v('creci'),
+    cep:            v('cep'),
+    endereco:       v('endereco'),
+    numEndereco:    v('numEndereco'),
+    complemento:    v('complemento'),
+    bairro:         v('bairro'),
+    cidade:         v('cidade'),
+    uf:             v('uf'),
+    celular:        v('celular'),
+    emailPessoal:   v('emailPessoal'),
+    possuiPJ:       (document.querySelector('input[name="possuiPJ"]:checked') || {value:''}).value,
+    nomeEmpresa:    v('nomeEmpresa'),
+    cnpj:           v('cnpj'),
+    banco:          v('banco'),
+    agencia:        v('agencia'),
+    conta:          contaNum,
+    digitoConta:    digitoNum,
+    tipoConta:      v('tipoConta'),
+    chavePix:       v('chavePix'),
+    favorecido:     v('favorecido'),
+    cpfFavorecido:  v('cpfFavorecido'),
+    // Links dos arquivos já salvos no Drive (ou vazio se não enviado)
+    selfieUrl:    typeof _uploadStatus.selfie     === 'string' ? _uploadStatus.selfie     : '',
+    cnhFrenteUrl: typeof _uploadStatus.cnh_frente === 'string' ? _uploadStatus.cnh_frente : '',
+    cnhVersoUrl:  typeof _uploadStatus.cnh_verso  === 'string' ? _uploadStatus.cnh_verso  : '',
+    token:        FORM_TOKEN,
+  };
+
+  try {
+    const params = new URLSearchParams(dados).toString();
+    await fetch(SHEET_URL + '?' + params, { method: 'GET', mode: 'no-cors' });
+    document.getElementById('nomeConfirmacao').textContent = nomeCompleto.split(' ')[0];
+    irParaStep(2);
+  } catch(err) {
+    btn.disabled = false;
+    btn.innerHTML = 'Enviar Ficha de Cadastro ✓';
+    const errDiv = document.getElementById('btn-area') || document.querySelector('.btn-wrap');
+    const msg = document.createElement('div');
+    msg.className = 'field-error'; msg.style.display = 'block'; msg.style.marginTop = '12px';
+    msg.textContent = 'Erro ao enviar. Verifique sua conexão e tente novamente.';
+    btn.parentNode.insertBefore(msg, btn.nextSibling);
+  }
+}
+
+</script>
+
+
+</body>
+</html>

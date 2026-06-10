@@ -318,9 +318,40 @@ body {
   border: 1px solid var(--accent-brd); background: #fff;
   color: var(--accent); font-size: 13px; font-weight: 600;
   border-radius: var(--radius-sm); padding: 7px 16px;
-  pointer-events: none; /* clique vai para o input file */
+  pointer-events: none;
 }
 .upload-zone.has-file .upload-btn-visual { display: none; }
+
+/* ── Picker customizado (câmera / galeria / arquivos) ── */
+.file-picker-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.45);
+  z-index: 9000; display: flex; align-items: flex-end; justify-content: center;
+}
+.file-picker-sheet {
+  background: #fff; border-radius: 16px 16px 0 0;
+  width: 100%; max-width: 480px;
+  padding: 8px 0 24px; box-shadow: 0 -4px 24px rgba(0,0,0,.18);
+  animation: slideUp .2s ease;
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.file-picker-title {
+  text-align: center; font-size: 13px; color: var(--text3);
+  padding: 12px 16px 8px; font-weight: 600; letter-spacing: .3px;
+}
+.file-picker-option {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 24px; cursor: pointer; font-size: 15px;
+  color: var(--text); transition: background .15s;
+}
+.file-picker-option:hover { background: #f5f5f5; }
+.file-picker-option svg { flex-shrink: 0; }
+.file-picker-cancel {
+  display: block; text-align: center; margin: 8px 16px 0;
+  padding: 12px; border-radius: var(--radius); background: #f1f3f4;
+  font-size: 15px; font-weight: 600; color: var(--text2); cursor: pointer;
+  border: none; width: calc(100% - 32px);
+}
+.file-picker-cancel:hover { background: #e8eaed; }
 
 /* Preview de arquivos selecionados */
 .upload-preview-list {
@@ -882,9 +913,7 @@ body {
       <div class="field">
         <label class="field-label">Selfie Atual</label>
         <p class="field-desc">Uma foto recente do rosto, bem iluminada. Pelo celular, você pode usar a câmera diretamente.</p>
-        <div class="upload-zone" id="selfieZone">
-          <input type="file" id="selfieFile" accept="image/*"
-            onchange="handleSingleUpload('selfieFile','selfiePreview','selfieZone','selfieNomeHint')">
+        <div class="upload-zone" id="selfieZone" onclick="abrirPicker('selfie')">
           <div class="upload-icon">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C62828" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
@@ -892,12 +921,17 @@ body {
             </svg>
           </div>
           <div class="upload-title">Selfie Atual</div>
-          <div class="upload-hint">Clique para abrir a câmera ou escolher uma foto da galeria</div>
+          <div class="upload-hint">Clique para abrir a câmera ou escolher um arquivo</div>
           <div class="upload-btn-visual">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
             Tirar foto / Escolher arquivo
           </div>
         </div>
+        <!-- inputs ocultos selfie -->
+        <input type="file" id="selfieFile-camera"  accept="image/*" capture="user"        style="display:none" onchange="handleSingleUpload('selfieFile-camera','selfiePreview','selfieZone','selfieNomeHint');sincronizarInput(this,'selfieFile')">
+        <input type="file" id="selfieFile-galeria" accept="image/*"                        style="display:none" onchange="handleSingleUpload('selfieFile-galeria','selfiePreview','selfieZone','selfieNomeHint');sincronizarInput(this,'selfieFile')">
+        <input type="file" id="selfieFile-arquivo" accept="image/*,.pdf,.doc,.docx"        style="display:none" onchange="handleSingleUpload('selfieFile-arquivo','selfiePreview','selfieZone','selfieNomeHint');sincronizarInput(this,'selfieFile')">
+        <input type="file" id="selfieFile" accept="image/*" style="display:none">
         <div class="upload-preview-list" id="selfiePreview"></div>
         <div class="field-hint" id="selfieNomeHint"></div>
       </div>
@@ -908,9 +942,7 @@ body {
         <p class="field-desc">Envie a frente e o verso do documento. Você também pode enviar um único arquivo PDF com a CNH digital.</p>
         <div class="upload-dual">
           <!-- Frente -->
-          <div class="upload-zone" id="cnhFrenteZone" style="padding:20px 12px">
-            <input type="file" id="cnhFrenteFile" accept="image/*,.pdf"
-              onchange="handleDocUpload('cnhFrenteFile','cnhFrenteZone','cnhFrenteNome')">
+          <div class="upload-zone" id="cnhFrenteZone" style="padding:20px 12px" onclick="abrirPicker('cnhFrente')">
             <div class="upload-icon">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C62828" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="12" cy="12" r="3"/>
@@ -918,14 +950,16 @@ body {
               </svg>
             </div>
             <div class="upload-title" style="font-size:13px">FRENTE</div>
-            <div class="upload-hint" style="font-size:11px">Clique para abrir a câmera ou escolher uma foto da galeria</div>
+            <div class="upload-hint" style="font-size:11px">Clique para abrir a câmera ou escolher um arquivo</div>
+            <div class="upload-btn-visual" style="font-size:12px;padding:5px 12px;margin-top:8px">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              Tirar foto / Escolher arquivo
+            </div>
             <div class="upload-file-name" id="cnhFrenteNome"></div>
             <div class="upload-status-badge" id="cnhFrenteZone-badge" style="display:none"></div>
           </div>
           <!-- Verso -->
-          <div class="upload-zone" id="cnhVersoZone" style="padding:20px 12px">
-            <input type="file" id="cnhVersoFile" accept="image/*,.pdf"
-              onchange="handleDocUpload('cnhVersoFile','cnhVersoZone','cnhVersoNome')">
+          <div class="upload-zone" id="cnhVersoZone" style="padding:20px 12px" onclick="abrirPicker('cnhVerso')">
             <div class="upload-icon">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C62828" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="12" cy="12" r="3"/>
@@ -933,10 +967,24 @@ body {
               </svg>
             </div>
             <div class="upload-title" style="font-size:13px">VERSO</div>
-            <div class="upload-hint" style="font-size:11px">Clique para abrir a câmera ou escolher uma foto da galeria</div>
+            <div class="upload-hint" style="font-size:11px">Clique para abrir a câmera ou escolher um arquivo</div>
+            <div class="upload-btn-visual" style="font-size:12px;padding:5px 12px;margin-top:8px">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              Tirar foto / Escolher arquivo
+            </div>
             <div class="upload-file-name" id="cnhVersoNome"></div>
             <div class="upload-status-badge" id="cnhVersoZone-badge" style="display:none"></div>
           </div>
+          <!-- inputs ocultos CNH frente -->
+          <input type="file" id="cnhFrenteFile-camera"  accept="image/*" capture="environment" style="display:none" onchange="handleDocUpload('cnhFrenteFile-camera','cnhFrenteZone','cnhFrenteNome');sincronizarInput(this,'cnhFrenteFile')">
+          <input type="file" id="cnhFrenteFile-galeria" accept="image/*"                        style="display:none" onchange="handleDocUpload('cnhFrenteFile-galeria','cnhFrenteZone','cnhFrenteNome');sincronizarInput(this,'cnhFrenteFile')">
+          <input type="file" id="cnhFrenteFile-arquivo" accept="image/*,.pdf,.doc,.docx"        style="display:none" onchange="handleDocUpload('cnhFrenteFile-arquivo','cnhFrenteZone','cnhFrenteNome');sincronizarInput(this,'cnhFrenteFile')">
+          <input type="file" id="cnhFrenteFile" accept="image/*,.pdf" style="display:none">
+          <!-- inputs ocultos CNH verso -->
+          <input type="file" id="cnhVersoFile-camera"  accept="image/*" capture="environment" style="display:none" onchange="handleDocUpload('cnhVersoFile-camera','cnhVersoZone','cnhVersoNome');sincronizarInput(this,'cnhVersoFile')">
+          <input type="file" id="cnhVersoFile-galeria" accept="image/*"                        style="display:none" onchange="handleDocUpload('cnhVersoFile-galeria','cnhVersoZone','cnhVersoNome');sincronizarInput(this,'cnhVersoFile')">
+          <input type="file" id="cnhVersoFile-arquivo" accept="image/*,.pdf,.doc,.docx"        style="display:none" onchange="handleDocUpload('cnhVersoFile-arquivo','cnhVersoZone','cnhVersoNome');sincronizarInput(this,'cnhVersoFile')">
+          <input type="file" id="cnhVersoFile" accept="image/*,.pdf" style="display:none">
         </div>
         <div class="field-hint" style="margin-top:8px">Se tiver a CNH digital em PDF, basta enviar em um dos campos acima.</div>
       </div>
@@ -1665,6 +1713,73 @@ async function enviarFormulario() {
     btn.parentNode.insertBefore(msg, btn.nextSibling);
   }
 }
+
+// ── Picker customizado ────────────────────────────────
+let _pickerAlvo = null; // 'selfie' | 'cnhFrente' | 'cnhVerso'
+
+function abrirPicker(alvo) {
+  _pickerAlvo = alvo;
+  const titulos = {
+    selfie:    'Selfie Atual',
+    cnhFrente: 'CNH / RG — Frente',
+    cnhVerso:  'CNH / RG — Verso',
+  };
+  document.getElementById('filePickerTitle').textContent = titulos[alvo] || 'Escolher arquivo';
+  document.getElementById('filePicker').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function fecharPicker(e) {
+  if (e && e.target !== document.getElementById('filePicker')) return;
+  document.getElementById('filePicker').style.display = 'none';
+  document.body.style.overflow = '';
+  _pickerAlvo = null;
+}
+
+function pickerEscolher(tipo) {
+  document.getElementById('filePicker').style.display = 'none';
+  document.body.style.overflow = '';
+  if (!_pickerAlvo) return;
+  const inputId = _pickerAlvo === 'selfie'
+    ? 'selfieFile-' + tipo
+    : _pickerAlvo === 'cnhFrente'
+      ? 'cnhFrenteFile-' + tipo
+      : 'cnhVersoFile-' + tipo;
+  const inp = document.getElementById(inputId);
+  if (inp) { inp.value = ''; inp.click(); }
+  _pickerAlvo = null;
+}
+
+// Sincroniza o input principal (usado no envio) com o input do picker
+function sincronizarInput(srcInput, destId) {
+  // Copia o arquivo selecionado para o input principal via DataTransfer
+  if (!srcInput.files || !srcInput.files.length) return;
+  try {
+    const dt = new DataTransfer();
+    dt.items.add(srcInput.files[0]);
+    document.getElementById(destId).files = dt.files;
+  } catch(e) { /* fallback: navegadores antigos ignoram */ }
+}
 </script>
+<!-- ── Picker customizado ── -->
+<div id="filePicker" class="file-picker-overlay" style="display:none" onclick="fecharPicker(event)">
+  <div class="file-picker-sheet" onclick="event.stopPropagation()">
+    <div class="file-picker-title" id="filePickerTitle">Escolher arquivo</div>
+    <div class="file-picker-option" onclick="pickerEscolher('camera')">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5f6368" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      Câmera
+    </div>
+    <div class="file-picker-option" onclick="pickerEscolher('galeria')">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5f6368" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      Fotos e vídeos
+    </div>
+    <div class="file-picker-option" onclick="pickerEscolher('arquivo')">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5f6368" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Meus Arquivos
+    </div>
+    <button class="file-picker-cancel" onclick="fecharPicker()">Cancelar</button>
+  </div>
+</div>
+
 </body>
 </html>

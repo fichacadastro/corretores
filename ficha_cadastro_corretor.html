@@ -384,6 +384,16 @@ body {
   margin-top: 4px;
 }
 
+/* Badge de status de upload (Drive) */
+.upload-status-badge {
+  display: inline-block; font-size: 11px; font-weight: 600;
+  padding: 3px 8px; border-radius: 10px; margin-top: 6px;
+  pointer-events: none;
+}
+.upload-status-badge.uploading { background: #e3f2fd; color: #1565c0; }
+.upload-status-badge.done      { background: #e6f4ea; color: #1e8e3e; }
+.upload-status-badge.error     { background: #fce4e4; color: #c62828; }
+
 /* ══════════════════════════════════════════════════
    BOTÃO ENVIAR
 ══════════════════════════════════════════════════ */
@@ -963,6 +973,15 @@ body {
 
 <script>
 // ══════════════════════════════════════════════════
+//  CONFIGURAÇÃO GLOBAL — Apps Script
+// ══════════════════════════════════════════════════
+const SHEET_URL  = 'https://script.google.com/macros/s/AKfycbxxKdaIwPVj5PLVIYN2Y-XqJpOdyRo0ligVC80RU00GarH2BxoJGvhz6BGSIkTRLAWn/exec';
+const FORM_TOKEN = '5gZwEvcxAV7i5t5m74Fl3hgdE4lr5DP8ej0fkOEOp177AFrO02FkLKQ1sHfJcGz9';
+
+// Status de upload por tipo de arquivo (null=não selecionado, 'uploading', url ou '')
+const _uploadStatus = { selfie: null, cnh_frente: null, cnh_verso: null };
+
+// ══════════════════════════════════════════════════
 //  NAVEGAÇÃO
 // ══════════════════════════════════════════════════
 function irParaStep(n) {
@@ -1355,6 +1374,109 @@ function validarTel(inp, errId) {
 // ══════════════════════════════════════════════════
 //  ENVIO
 // ══════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
+//  UPLOAD DE ARQUIVOS — Drive API via JSONP
+// ══════════════════════════════════════════════════
+
+/** Requisição GET ao GAS via <script> (bypass CORS, permite ler a resposta) */
+function jsonpGet(url) {
+  return new Promise((resolve, reject) => {
+    const cb  = '_gcb_' + Date.now() + '_' + Math.floor(Math.random() * 9999);
+    const tag = document.createElement('script');
+    const tid = setTimeout(() => { cleanup(); reject(new Error('Timeout')); }, 30000);
+    function cleanup() {
+      clearTimeout(tid);
+      delete window[cb];
+      if (tag.parentNode) tag.parentNode.removeChild(tag);
+    }
+    window[cb]   = (data) => { cleanup(); resolve(data); };
+    tag.onerror  = ()     => { cleanup(); reject(new Error('Erro de rede')); };
+    tag.src      = url + '&cb=' + cb;
+    document.head.appendChild(tag);
+  });
+}
+
+/** Exibe badge de status ao lado da zona de upload */
+function atualizarStatusUpload(zoneId, status) {
+  const zone = document.getElementById(zoneId);
+  if (!zone) return;
+  const prev = zone.querySelector('.upload-status-badge');
+  if (prev) prev.remove();
+  if (!status) return;
+  const badge = document.createElement('div');
+  badge.className = 'upload-status-badge ' + status;
+  badge.textContent = status === 'uploading' ? '↑ Salvando no Drive...'
+                    : status === 'done'      ? '✓ Salvo no Drive'
+                    :                          '⚠ Não enviado — tente de novo';
+  zone.appendChild(badge);
+}
+
+/**
+ * Faz upload de um arquivo para o Google Drive:
+ * 1. GAS gera URL de upload temporária (via Drive API)
+ * 2. Browser envia o arquivo diretamente ao Drive
+ * 3. GAS torna o arquivo público e retorna o link
+ */
+async function uploadFileToDrive(file, fileType, zoneId, nomeCompleto, cpf) {
+  if (!file) return '';
+  _uploadStatus[fileType] = 'uploading';
+  atualizarStatusUpload(zoneId, 'uploading');
+  try {
+    // Comprimir imagem ou validar PDF
+    let base64, mimeType, ext;
+    if (file.type.startsWith('image/')) {
+      const compressed = await comprimirImagem(file);
+      base64   = compressed.base64;
+      mimeType = compressed.type;
+      ext      = compressed.ext;
+    } else {
+      // PDF: converter direto
+      const result = await new Promise((res) => {
+        const r = new FileReader();
+        r.onload = (e) => res({ base64: e.target.result.split(',')[1], type: file.type, ext: file.name.split('.').pop() });
+        r.readAsDataURL(file);
+      });
+      base64 = result.base64; mimeType = result.type; ext = result.ext;
+    }
+
+    const binarySize = Math.floor(base64.length * 0.75);
+
+    // 1. Solicitar URL de upload ao GAS
+    const prepParams = new URLSearchParams({
+      token: FORM_TOKEN, action: 'prepare_upload',
+      ftype: fileType, ext, mime: mimeType, size: binarySize,
+      nomeCompleto: nomeCompleto || 'desconhecido',
+      cpf: cpf || 'desconhecido',
+    });
+    const prep = await jsonpGet(SHEET_URL + '?' + prepParams);
+    if (prep.status !== 'ok') throw new Error(prep.message);
+
+    // 2. Enviar arquivo diretamente ao Drive (suporta CORS)
+    const bytes   = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+    const blob    = new Blob([bytes], { type: mimeType });
+    const upResp  = await fetch(prep.uploadUrl, { method: 'PUT', headers: { 'Content-Type': mimeType }, body: blob });
+    if (!upResp.ok) throw new Error('Upload Drive falhou: ' + upResp.status);
+    const { id: fileId } = await upResp.json();
+
+    // 3. Tornar público e obter link
+    const pubParams = new URLSearchParams({
+      token: FORM_TOKEN, action: 'set_file_public',
+      fileId, ftype: fileType, cpf: cpf || 'desconhecido',
+    });
+    const pub = await jsonpGet(SHEET_URL + '?' + pubParams);
+    if (pub.status !== 'ok') throw new Error(pub.message);
+
+    _uploadStatus[fileType] = pub.url;
+    atualizarStatusUpload(zoneId, 'done');
+    return pub.url;
+  } catch(err) {
+    console.error('uploadFileToDrive [' + fileType + ']:', err);
+    _uploadStatus[fileType] = '';
+    atualizarStatusUpload(zoneId, 'error');
+    return '';
+  }
+}
+
 async function enviarFormulario() {
   let ok = true;
 
@@ -1486,23 +1608,37 @@ async function enviarFormulario() {
     return comprimirImagem(file);
   }
 
-  btn.innerHTML = '<span class="spinner"></span> Enviando...';
+  const nomeCompleto = v('nomeCompleto');
+  const cpf          = v('cpf');
 
-  // URL e token do Google Apps Script
-  // IMPORTANTE: o FORM_TOKEN deve ser idêntico ao TOKEN_SECRETO definido no script.
-  const SHEET_URL  = 'https://script.google.com/macros/s/AKfycbxxKdaIwPVj5PLVIYN2Y-XqJpOdyRo0ligVC80RU00GarH2BxoJGvhz6BGSIkTRLAWn/exec';
-  const FORM_TOKEN = '5gZwEvcxAV7i5t5m74Fl3hgdE4lr5DP8ej0fkOEOp177AFrO02FkLKQ1sHfJcGz9';
+  // ── Passo 1: Upload de arquivos em paralelo ─────────────────────
+  const selfieFile    = document.getElementById('selfieFile').files[0];
+  const cnhFrenteFile = document.getElementById('cnhFrenteFile').files[0];
+  const cnhVersoFile  = document.getElementById('cnhVersoFile').files[0];
+  const temFotos = selfieFile || cnhFrenteFile || cnhVersoFile;
+
+  if (temFotos) {
+    btn.innerHTML = '<span class="spinner"></span> Enviando fotos...';
+    await Promise.allSettled([
+      uploadFileToDrive(selfieFile,    'selfie',     'selfieZone',    nomeCompleto, cpf),
+      uploadFileToDrive(cnhFrenteFile, 'cnh_frente', 'cnhFrenteZone', nomeCompleto, cpf),
+      uploadFileToDrive(cnhVersoFile,  'cnh_verso',  'cnhVersoZone',  nomeCompleto, cpf),
+    ]);
+  }
+
+  // ── Passo 2: Enviar dados do formulário via GET ─────────────────
+  btn.innerHTML = '<span class="spinner"></span> Enviando dados...';
 
   const dados = {
     timestamp:      new Date().toLocaleString('pt-BR'),
     aceite:         'Sim',
-    nomeCompleto:   v('nomeCompleto'),
+    nomeCompleto,
     apelido:        v('apelido'),
     dataNascimento: v('dataNascimento'),
     sexo:           (document.querySelector('input[name="sexo"]:checked') || {value:''}).value,
     estadoCivil:    v('estadoCivil'),
     rg:             v('rg'),
-    cpf:            v('cpf'),
+    cpf,
     creci:          v('creci'),
     cep:            v('cep'),
     endereco:       v('endereco'),
@@ -1524,14 +1660,17 @@ async function enviarFormulario() {
     chavePix:       v('chavePix'),
     favorecido:     v('favorecido'),
     cpfFavorecido:  v('cpfFavorecido'),
-    token:          FORM_TOKEN,
+    // Links dos arquivos já salvos no Drive (ou vazio se não enviado)
+    selfieUrl:    typeof _uploadStatus.selfie     === 'string' ? _uploadStatus.selfie     : '',
+    cnhFrenteUrl: typeof _uploadStatus.cnh_frente === 'string' ? _uploadStatus.cnh_frente : '',
+    cnhVersoUrl:  typeof _uploadStatus.cnh_verso  === 'string' ? _uploadStatus.cnh_verso  : '',
+    token:        FORM_TOKEN,
   };
 
   try {
-    // GET com no-cors — mesmo método do formulario_index.html, funciona com GAS
     const params = new URLSearchParams(dados).toString();
     await fetch(SHEET_URL + '?' + params, { method: 'GET', mode: 'no-cors' });
-    document.getElementById('nomeConfirmacao').textContent = v('nomeCompleto').split(' ')[0];
+    document.getElementById('nomeConfirmacao').textContent = nomeCompleto.split(' ')[0];
     irParaStep(2);
   } catch(err) {
     btn.disabled = false;

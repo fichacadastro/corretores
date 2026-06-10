@@ -358,12 +358,10 @@ body {
 }
 .picker-btn:active { background: #eef0f3; transform: scale(.96); }
 .picker-btn-icon {
-  width: 52px; height: 52px; border-radius: 14px;
+  width: 56px; height: 56px; border-radius: 14px;
   display: flex; align-items: center; justify-content: center;
+  font-size: 32px; line-height: 1;
 }
-.picker-btn-icon.camera  { background: #1c1c1e; }
-.picker-btn-icon.gallery { background: linear-gradient(135deg, #f9ce34, #ee2a7b, #6228d7); }
-.picker-btn-icon.files   { background: linear-gradient(145deg, #4fc3f7, #0277bd); }
 .picker-btn-label {
   font-size: 12px; font-weight: 600; color: var(--text);
 }
@@ -1744,40 +1742,15 @@ function onPickerFile(inputId, alvo, tipo) {
     <div class="picker-title" id="pickerTitle">Escolher arquivo</div>
     <div class="picker-options">
       <button class="picker-btn" onclick="pickerEscolher('camera')">
-        <div class="picker-btn-icon camera">
-          <!-- Câmera estilo iOS -->
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="2" y="6" width="20" height="15" rx="3" fill="#3a3a3c"/>
-            <path d="M8 6L9.5 3.5h5L16 6" fill="#3a3a3c" stroke="#3a3a3c" stroke-width="0.5"/>
-            <circle cx="12" cy="13.5" r="4" fill="none" stroke="#fff" stroke-width="1.5"/>
-            <circle cx="12" cy="13.5" r="2.2" fill="#fff" opacity=".25"/>
-            <circle cx="17.5" cy="8.5" r="1" fill="#fff" opacity=".6"/>
-          </svg>
-        </div>
+        <div class="picker-btn-icon">📷</div>
         <span class="picker-btn-label">Câmera</span>
       </button>
       <button class="picker-btn" onclick="pickerEscolher('gallery')">
-        <div class="picker-btn-icon gallery">
-          <!-- Fotos estilo iOS — pétala/pinwheel -->
-          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <ellipse cx="14" cy="8"  rx="3.2" ry="5.5" fill="rgba(255,255,255,.9)" transform="rotate(0 14 14)"/>
-            <ellipse cx="14" cy="8"  rx="3.2" ry="5.5" fill="rgba(255,255,255,.75)" transform="rotate(45 14 14)"/>
-            <ellipse cx="14" cy="8"  rx="3.2" ry="5.5" fill="rgba(255,255,255,.6)" transform="rotate(90 14 14)"/>
-            <ellipse cx="14" cy="8"  rx="3.2" ry="5.5" fill="rgba(255,255,255,.45)" transform="rotate(135 14 14)"/>
-            <circle cx="14" cy="14" r="3" fill="#fff" opacity=".95"/>
-          </svg>
-        </div>
+        <div class="picker-btn-icon">🖼️</div>
         <span class="picker-btn-label">Fotos</span>
       </button>
       <button class="picker-btn" onclick="pickerEscolher('files')">
-        <div class="picker-btn-icon files">
-          <!-- Pasta estilo Samsung Meus Arquivos -->
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M2 7a2 2 0 0 1 2-2h4.5l2 2.5H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7z" fill="rgba(255,255,255,.3)"/>
-            <path d="M2 9.5h20" stroke="#fff" stroke-width="1.2" opacity=".5"/>
-            <path d="M2 7a2 2 0 0 1 2-2h4.5l2 2.5H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7z" fill="none" stroke="#fff" stroke-width="1.5"/>
-          </svg>
-        </div>
+        <div class="picker-btn-icon">📁</div>
         <span class="picker-btn-label">Arquivos</span>
       </button>
     </div>

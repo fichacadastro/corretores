@@ -1489,10 +1489,13 @@ async function uploadFileChunked(file, fileType, zoneId, nomeCompleto, cpf) {
     };
 
     console.log(`🚀 Enviando POST para ${SHEET_URL}`);
+    const form = new FormData();
+    Object.keys(payload).forEach(k => form.append(k, payload[k]));
+
     const response = await fetch(SHEET_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: form
+      // NÃO enviar Content-Type header — FormData se encarrega
     });
 
     if (!response.ok) throw new Error(`HTTP ${response.status}`);

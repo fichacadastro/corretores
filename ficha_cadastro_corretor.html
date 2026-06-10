@@ -1412,65 +1412,53 @@ function atualizarStatusUpload(zoneId, status) {
 }
 
 /**
- * Faz upload de um arquivo para o Google Drive:
- * 1. GAS gera URL de upload temporária (via Drive API)
- * 2. Browser envia o arquivo diretamente ao Drive
- * 3. GAS torna o arquivo público e retorna o link
+ * Envia um arquivo para o Google Drive via JSONP chunked:
+ * — Divide o base64 em pedaços de 4000 chars
+ * — Envia cada pedaço ao GAS via JSONP GET (bypass CORS)
+ * — GAS monta e salva no Drive, retorna o link
  */
-async function uploadFileToDrive(file, fileType, zoneId, nomeCompleto, cpf) {
+async function uploadFileChunked(file, fileType, zoneId, nomeCompleto, cpf) {
   if (!file) return '';
   _uploadStatus[fileType] = 'uploading';
   atualizarStatusUpload(zoneId, 'uploading');
   try {
-    // Comprimir imagem ou validar PDF
+    // Comprimir imagem ou ler PDF
     let base64, mimeType, ext;
     if (file.type.startsWith('image/')) {
-      const compressed = await comprimirImagem(file);
-      base64   = compressed.base64;
-      mimeType = compressed.type;
-      ext      = compressed.ext;
+      const c = await comprimirImagem(file);
+      base64 = c.base64; mimeType = c.type; ext = c.ext;
     } else {
-      // PDF: converter direto
-      const result = await new Promise((res) => {
+      const c = await new Promise(res => {
         const r = new FileReader();
-        r.onload = (e) => res({ base64: e.target.result.split(',')[1], type: file.type, ext: file.name.split('.').pop() });
+        r.onload = e => res({ base64: e.target.result.split(',')[1], type: file.type, ext: file.name.split('.').pop() });
         r.readAsDataURL(file);
       });
-      base64 = result.base64; mimeType = result.type; ext = result.ext;
+      base64 = c.base64; mimeType = c.type; ext = c.ext;
     }
 
-    const binarySize = Math.floor(base64.length * 0.75);
+    const CHUNK = 4000;
+    const total = Math.ceil(base64.length / CHUNK);
+    const sid   = Math.random().toString(36).substr(2, 8);
 
-    // 1. Solicitar URL de upload ao GAS
-    const prepParams = new URLSearchParams({
-      token: FORM_TOKEN, action: 'prepare_upload',
-      ftype: fileType, ext, mime: mimeType, size: binarySize,
-      nomeCompleto: nomeCompleto || 'desconhecido',
-      cpf: cpf || 'desconhecido',
-    });
-    const prep = await jsonpGet(SHEET_URL + '?' + prepParams);
-    if (prep.status !== 'ok') throw new Error(prep.message);
-
-    // 2. Enviar arquivo diretamente ao Drive (suporta CORS)
-    const bytes   = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
-    const blob    = new Blob([bytes], { type: mimeType });
-    const upResp  = await fetch(prep.uploadUrl, { method: 'PUT', headers: { 'Content-Type': mimeType }, body: blob });
-    if (!upResp.ok) throw new Error('Upload Drive falhou: ' + upResp.status);
-    const { id: fileId } = await upResp.json();
-
-    // 3. Tornar público e obter link
-    const pubParams = new URLSearchParams({
-      token: FORM_TOKEN, action: 'set_file_public',
-      fileId, ftype: fileType, cpf: cpf || 'desconhecido',
-    });
-    const pub = await jsonpGet(SHEET_URL + '?' + pubParams);
-    if (pub.status !== 'ok') throw new Error(pub.message);
-
-    _uploadStatus[fileType] = pub.url;
-    atualizarStatusUpload(zoneId, 'done');
-    return pub.url;
+    for (let i = 0; i < total; i++) {
+      const isLast = (i === total - 1);
+      const params = new URLSearchParams({
+        token: FORM_TOKEN, action: 'upload_chunk',
+        sid, ftype: fileType, idx: i, total,
+        data: base64.slice(i * CHUNK, (i + 1) * CHUNK),
+        ...(isLast ? { ext, mime: mimeType, nome: nomeCompleto || '', cpf: cpf || '' } : {}),
+      });
+      const res = await jsonpGet(SHEET_URL + '?' + params);
+      if (res.status !== 'ok') throw new Error(res.message || 'Falha no chunk ' + i);
+      if (res.url) {
+        _uploadStatus[fileType] = res.url;
+        atualizarStatusUpload(zoneId, 'done');
+        return res.url;
+      }
+    }
+    throw new Error('Sem URL retornada após último chunk');
   } catch(err) {
-    console.error('uploadFileToDrive [' + fileType + ']:', err);
+    console.error('uploadFileChunked [' + fileType + ']:', err);
     _uploadStatus[fileType] = '';
     atualizarStatusUpload(zoneId, 'error');
     return '';
@@ -1620,9 +1608,9 @@ async function enviarFormulario() {
   if (temFotos) {
     btn.innerHTML = '<span class="spinner"></span> Enviando fotos...';
     await Promise.allSettled([
-      uploadFileToDrive(selfieFile,    'selfie',     'selfieZone',    nomeCompleto, cpf),
-      uploadFileToDrive(cnhFrenteFile, 'cnh_frente', 'cnhFrenteZone', nomeCompleto, cpf),
-      uploadFileToDrive(cnhVersoFile,  'cnh_verso',  'cnhVersoZone',  nomeCompleto, cpf),
+      uploadFileChunked(selfieFile,    'selfie',     'selfieZone',    nomeCompleto, cpf),
+      uploadFileChunked(cnhFrenteFile, 'cnh_frente', 'cnhFrenteZone', nomeCompleto, cpf),
+      uploadFileChunked(cnhVersoFile,  'cnh_verso',  'cnhVersoZone',  nomeCompleto, cpf),
     ]);
   }
 

@@ -232,7 +232,7 @@ body {
   user-select: none;
 }
 .gf-option:hover { background: #f1f3f4; }
-.gf-option.selected { background: var(--accent-lt); }
+.gf-option.selected { background: transparent; }
 .gf-option:focus-within { outline: none; }
 .gf-option input { opacity: 0; position: absolute; width: 0; height: 0; margin: 0; }
 
@@ -577,8 +577,9 @@ body {
       <!-- RG -->
       <div class="field">
         <label class="field-label" for="rg">RG <span class="req">*</span></label>
-        <input class="f-input" type="text" id="rg" maxlength="20"
-          placeholder="Número do RG" oninput="limparErro('rg')">
+        <input class="f-input" type="text" id="rg" maxlength="14"
+          placeholder="00.000.000-0" oninput="mascaraRG(this);limparErro('rg')"
+          inputmode="text" autocomplete="off">
         <div class="field-error" id="err-rg">RG é obrigatório.</div>
       </div>
 
@@ -1223,6 +1224,17 @@ function formatBytes(bytes) {
 // ══════════════════════════════════════════════════
 //  MÁSCARAS
 // ══════════════════════════════════════════════════
+function mascaraRG(inp) {
+  // Aceita dígitos e X/x (dígito verificador de alguns estados)
+  let v = inp.value.replace(/[^0-9Xx]/gi, '').toUpperCase();
+  if (v.length > 9) v = v.substring(0, 9);
+  // Formato: 00.000.000-X
+  v = v.replace(/^(\d{2})(\d)/,'$1.$2')
+       .replace(/^(\d{2})\.(\d{3})(\d)/,'$1.$2.$3')
+       .replace(/^(\d{2})\.(\d{3})\.(\d{3})([0-9X])/,'$1.$2.$3-$4');
+  inp.value = v;
+}
+
 function aplicarMascaraCPF(inp) {
   inp.value = inp.value.replace(/\D/g,'')
     .replace(/(\d{3})(\d)/,'$1.$2')

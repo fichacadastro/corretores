@@ -1605,6 +1605,11 @@ async function enviarFormulario() {
   const cnhVersoFile  = document.getElementById('cnhVersoFile').files[0];
   const temFotos = selfieFile || cnhFrenteFile || cnhVersoFile;
 
+  // DEBUG TEMPORÁRIO — remover após confirmar funcionamento
+  alert('Selfie: ' + (selfieFile ? selfieFile.name : 'não selecionada') +
+        '\nCNH Frente: ' + (cnhFrenteFile ? cnhFrenteFile.name : 'não selecionada') +
+        '\nCNH Verso: ' + (cnhVersoFile ? cnhVersoFile.name : 'não selecionada'));
+
   if (temFotos) {
     btn.innerHTML = '<span class="spinner"></span> Enviando fotos...';
     await Promise.allSettled([

@@ -496,7 +496,7 @@ body {
 
     <div style="text-align:center">
       <button class="btn-start" onclick="irParaStep(1)">Iniciar Preenchimento →</button>
-      <div class="cover-meta">⏱ Aproximadamente 5 minutos</div>
+      <div class="cover-meta">⏱ Aproximadamente 2 minutos</div>
     </div>
   </div>
 </div>
@@ -883,7 +883,7 @@ body {
         <label class="field-label">Selfie Atual</label>
         <p class="field-desc">Uma foto recente do rosto, bem iluminada. Pelo celular, você pode usar a câmera diretamente.</p>
         <div class="upload-zone" id="selfieZone">
-          <input type="file" id="selfieFile" accept="image/*" capture="user"
+          <input type="file" id="selfieFile" accept="image/*"
             onchange="handleSingleUpload('selfieFile','selfiePreview','selfieZone','selfieNomeHint')">
           <div class="upload-icon">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C62828" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -909,7 +909,7 @@ body {
         <div class="upload-dual">
           <!-- Frente -->
           <div class="upload-zone" id="cnhFrenteZone" style="padding:20px 12px">
-            <input type="file" id="cnhFrenteFile" accept="image/*,.pdf" capture="environment"
+            <input type="file" id="cnhFrenteFile" accept="image/*,.pdf"
               onchange="handleDocUpload('cnhFrenteFile','cnhFrenteZone','cnhFrenteNome')">
             <div class="upload-icon">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C62828" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -924,7 +924,7 @@ body {
           </div>
           <!-- Verso -->
           <div class="upload-zone" id="cnhVersoZone" style="padding:20px 12px">
-            <input type="file" id="cnhVersoFile" accept="image/*,.pdf" capture="environment"
+            <input type="file" id="cnhVersoFile" accept="image/*,.pdf"
               onchange="handleDocUpload('cnhVersoFile','cnhVersoZone','cnhVersoNome')">
             <div class="upload-icon">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C62828" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

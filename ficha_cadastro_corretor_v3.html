@@ -3,8 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="color-scheme" content="light">
-<meta name="theme-color" content="#f5f5f5">
 <title>Ficha de Cadastro – Corretor Associado</title>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -34,7 +32,6 @@ body {
   color: var(--text);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
-  color-scheme: light;
 }
 
 /* ── Layout ── */
@@ -325,6 +322,60 @@ body {
 }
 .upload-zone.has-file .upload-btn-visual { display: none; }
 
+/* ── Picker moderno horizontal ── */
+.picker-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.5);
+  z-index: 9000; display: flex; align-items: flex-end; justify-content: center;
+  animation: pickerFadeIn .2s ease;
+}
+@keyframes pickerFadeIn { from { opacity: 0; } to { opacity: 1; } }
+.picker-sheet {
+  background: #fff; border-radius: 20px 20px 0 0;
+  width: 100%; max-width: 480px;
+  padding: 12px 20px 36px;
+  animation: pickerSlideUp .25s cubic-bezier(.32,.72,0,1);
+}
+@keyframes pickerSlideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.picker-handle {
+  width: 36px; height: 4px; background: #e0e0e0; border-radius: 2px;
+  margin: 0 auto 20px;
+}
+.picker-title {
+  font-size: 11px; font-weight: 700; color: var(--text3);
+  letter-spacing: 1px; text-transform: uppercase;
+  text-align: center; margin-bottom: 20px;
+}
+.picker-options {
+  display: flex; justify-content: center; gap: 12px;
+}
+.picker-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  flex: 1; max-width: 100px;
+  background: #f7f8fa; border: none; border-radius: 16px;
+  padding: 20px 8px 16px; cursor: pointer;
+  transition: background .15s, transform .1s;
+  font-family: inherit;
+}
+.picker-btn:active { background: #eef0f3; transform: scale(.96); }
+.picker-btn-icon {
+  width: 52px; height: 52px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+}
+.picker-btn-icon.camera  { background: #ff6b35; }
+.picker-btn-icon.gallery { background: #7c4dff; }
+.picker-btn-icon.files   { background: #00acc1; }
+.picker-btn-label {
+  font-size: 12px; font-weight: 600; color: var(--text);
+}
+.picker-cancel {
+  display: block; width: 100%; margin-top: 12px;
+  background: #f7f8fa; border: none; border-radius: 14px;
+  padding: 14px; font-size: 15px; font-weight: 600;
+  color: var(--text2); cursor: pointer; font-family: inherit;
+  transition: background .15s;
+}
+.picker-cancel:active { background: #eef0f3; }
+
 
 /* Preview de arquivos selecionados */
 .upload-preview-list {
@@ -446,7 +497,7 @@ body {
    RESPONSIVO
 ══════════════════════════════════════════════════ */
 @media(max-width:600px) {
-  .form-wrap { padding: 16px 8px 80px; zoom: 1.08; }
+  .form-wrap { padding: 16px 8px 80px; }
   .section-card, .cover-card { padding: 20px 16px; }
   .gf-options.horizontal { flex-direction: row; flex-wrap: wrap; }
   .upload-dual { grid-template-columns: 1fr; }
@@ -848,9 +899,7 @@ body {
       <div class="field">
         <label class="field-label">Selfie Atual</label>
         <p class="field-desc">Uma foto recente do rosto, bem iluminada. Pelo celular, você pode usar a câmera diretamente.</p>
-        <div class="upload-zone" id="selfieZone">
-          <input type="file" id="selfieFile" accept="image/*"
-            onchange="handleSingleUpload('selfieFile','selfiePreview','selfieZone','selfieNomeHint')">
+        <div class="upload-zone" id="selfieZone" onclick="abrirPicker('selfie',event)">
           <div class="upload-icon">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C62828" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
@@ -875,9 +924,7 @@ body {
         <div class="upload-dual">
           <!-- Frente -->
           <div>
-            <div class="upload-zone" id="cnhFrenteZone">
-              <input type="file" id="cnhFrenteFile" accept="image/*"
-                onchange="handleDocUpload('cnhFrenteFile','cnhFrenteZone','cnhFrenteNome')">
+            <div class="upload-zone" id="cnhFrenteZone" onclick="abrirPicker('cnhFrente',event)">
               <div class="upload-icon">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C62828" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="12" cy="12" r="3"/>
@@ -895,9 +942,7 @@ body {
           </div>
           <!-- Verso -->
           <div>
-            <div class="upload-zone" id="cnhVersoZone">
-              <input type="file" id="cnhVersoFile" accept="image/*"
-                onchange="handleDocUpload('cnhVersoFile','cnhVersoZone','cnhVersoNome')">
+            <div class="upload-zone" id="cnhVersoZone" onclick="abrirPicker('cnhVerso',event)">
               <div class="upload-icon">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C62828" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="12" cy="12" r="3"/>
@@ -1642,8 +1687,106 @@ async function enviarFormulario() {
   }
 }
 
+// ── Picker moderno ────────────────────────────────────
+let _pickerAlvo = null;
+
+function abrirPicker(alvo, e) {
+  if (e) e.stopPropagation();
+  _pickerAlvo = alvo;
+  const titulos = { selfie: 'Selfie Atual', cnhFrente: 'CNH / RG — Frente', cnhVerso: 'CNH / RG — Verso' };
+  document.getElementById('pickerTitle').textContent = titulos[alvo] || 'Escolher arquivo';
+  document.getElementById('pickerOverlay').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function fecharPicker() {
+  document.getElementById('pickerOverlay').style.display = 'none';
+  document.body.style.overflow = '';
+  _pickerAlvo = null;
+}
+
+function pickerEscolher(tipo) {
+  fecharPicker();
+  if (!_pickerAlvo) return;
+  const ids = {
+    selfie:    { camera: 'selfieCamera',    gallery: 'selfieGallery',    files: 'selfieFiles'    },
+    cnhFrente: { camera: 'frenteCamera',    gallery: 'frenteGallery',    files: 'frenteFiles'    },
+    cnhVerso:  { camera: 'versoCamera',     gallery: 'versoGallery',     files: 'versoFiles'     },
+  };
+  const inp = document.getElementById(ids[_pickerAlvo][tipo]);
+  if (inp) { inp.value = ''; inp.click(); }
+}
+
+function onPickerFile(inputId, alvo, tipo) {
+  const src = document.getElementById(inputId);
+  if (!src || !src.files || !src.files.length) return;
+  // Copia para o input principal via DataTransfer
+  try {
+    const dt = new DataTransfer();
+    dt.items.add(src.files[0]);
+    const main = document.getElementById(alvo === 'selfie' ? 'selfieFile' : alvo === 'cnhFrente' ? 'cnhFrenteFile' : 'cnhVersoFile');
+    if (main) main.files = dt.files;
+  } catch(e) {}
+  // Dispara o handler correto
+  if (alvo === 'selfie') handleSingleUpload(inputId, 'selfiePreview', 'selfieZone', 'selfieNomeHint');
+  else if (alvo === 'cnhFrente') handleDocUpload(inputId, 'cnhFrenteZone', 'cnhFrenteNome');
+  else handleDocUpload(inputId, 'cnhVersoZone', 'cnhVersoNome');
+}
 </script>
 
+<!-- Picker HTML -->
+<div id="pickerOverlay" class="picker-overlay" style="display:none" onclick="fecharPicker()">
+  <div class="picker-sheet" onclick="event.stopPropagation()">
+    <div class="picker-handle"></div>
+    <div class="picker-title" id="pickerTitle">Escolher arquivo</div>
+    <div class="picker-options">
+      <button class="picker-btn" onclick="pickerEscolher('camera')">
+        <div class="picker-btn-icon camera">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+            <circle cx="12" cy="13" r="4"/>
+          </svg>
+        </div>
+        <span class="picker-btn-label">Câmera</span>
+      </button>
+      <button class="picker-btn" onclick="pickerEscolher('gallery')">
+        <div class="picker-btn-icon gallery">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="3"/>
+            <circle cx="8.5" cy="8.5" r="1.5" fill="#fff" stroke="none"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
+        </div>
+        <span class="picker-btn-label">Fotos</span>
+      </button>
+      <button class="picker-btn" onclick="pickerEscolher('files')">
+        <div class="picker-btn-icon files">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+          </svg>
+        </div>
+        <span class="picker-btn-label">Arquivos</span>
+      </button>
+    </div>
+    <button class="picker-cancel" onclick="fecharPicker()">Cancelar</button>
+  </div>
+</div>
+
+<!-- Inputs ocultos -->
+<input type="file" id="selfieCamera"  accept="image/*"  capture="user"        style="display:none" onchange="onPickerFile('selfieCamera','selfie','camera')">
+<input type="file" id="selfieGallery" accept="image/*"                         style="display:none" onchange="onPickerFile('selfieGallery','selfie','gallery')">
+<input type="file" id="selfieFiles"   accept="image/*,.pdf,.doc,.docx"         style="display:none" onchange="onPickerFile('selfieFiles','selfie','files')">
+<input type="file" id="selfieFile"    accept="image/*"                         style="display:none">
+
+<input type="file" id="frenteCamera"  accept="image/*"  capture="environment"  style="display:none" onchange="onPickerFile('frenteCamera','cnhFrente','camera')">
+<input type="file" id="frenteGallery" accept="image/*"                         style="display:none" onchange="onPickerFile('frenteGallery','cnhFrente','gallery')">
+<input type="file" id="frenteFiles"   accept="image/*,.pdf,.doc,.docx"         style="display:none" onchange="onPickerFile('frenteFiles','cnhFrente','files')">
+<input type="file" id="cnhFrenteFile" accept="image/*,.pdf"                    style="display:none">
+
+<input type="file" id="versoCamera"   accept="image/*"  capture="environment"  style="display:none" onchange="onPickerFile('versoCamera','cnhVerso','camera')">
+<input type="file" id="versoGallery"  accept="image/*"                         style="display:none" onchange="onPickerFile('versoGallery','cnhVerso','gallery')">
+<input type="file" id="versoFiles"    accept="image/*,.pdf,.doc,.docx"         style="display:none" onchange="onPickerFile('versoFiles','cnhVerso','files')">
+<input type="file" id="cnhVersoFile"  accept="image/*,.pdf"                    style="display:none">
 
 </body>
 </html>

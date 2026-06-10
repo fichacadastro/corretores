@@ -1486,85 +1486,57 @@ async function enviarFormulario() {
     return comprimirImagem(file);
   }
 
-  btn.innerHTML = '<span class="spinner"></span> Comprimindo imagens...';
-  const [selfie, cnhFrente, cnhVerso] = await Promise.all([
-    arquivoParaBase64('selfieFile'),
-    arquivoParaBase64('cnhFrenteFile'),
-    arquivoParaBase64('cnhVersoFile'),
-  ]);
-
   btn.innerHTML = '<span class="spinner"></span> Enviando...';
 
+  // URL e token do Google Apps Script
+  // IMPORTANTE: o FORM_TOKEN deve ser idêntico ao TOKEN_SECRETO definido no script.
+  const SHEET_URL  = 'https://script.google.com/macros/s/AKfycbxxKdaIwPVj5PLVIYN2Y-XqJpOdyRo0ligVC80RU00GarH2BxoJGvhz6BGSIkTRLAWn/exec';
+  const FORM_TOKEN = '5gZwEvcxAV7i5t5m74Fl3hgdE4lr5DP8ej0fkOEOp177AFrO02FkLKQ1sHfJcGz9';
+
   const dados = {
-    timestamp:       new Date().toLocaleString('pt-BR'),
-    aceite:          'Sim',
-    nomeCompleto:    v('nomeCompleto'),
-    apelido:         v('apelido'),
-    dataNascimento:  v('dataNascimento'),
-    sexo:            (document.querySelector('input[name="sexo"]:checked') || {value:''}).value,
-    estadoCivil:     v('estadoCivil'),
-    rg:              v('rg'),
-    cpf:             v('cpf'),
-    creci:           v('creci'),
-    cep:             v('cep'),
-    endereco:        v('endereco'),
-    numEndereco:     v('numEndereco'),
-    complemento:     v('complemento'),
-    bairro:          v('bairro'),
-    cidade:          v('cidade'),
-    uf:              v('uf'),
-    celular:         v('celular'),
-    emailPessoal:    v('emailPessoal'),
-    possuiPJ:        (document.querySelector('input[name="possuiPJ"]:checked') || {value:''}).value,
-    nomeEmpresa:     v('nomeEmpresa'),
-    cnpj:            v('cnpj'),
-    banco:           v('banco'),
-    agencia:         v('agencia'),
-    conta:           contaNum,
-    digitoConta:     digitoNum,
-    tipoConta:       v('tipoConta'),
-    chavePix:        v('chavePix'),
-    favorecido:      v('favorecido'),
-    cpfFavorecido:   v('cpfFavorecido'),
-    token:           FORM_TOKEN,
-    // Arquivos em Base64
-    selfieBase64:    selfie.base64    || '',
-    selfieType:      selfie.type      || '',
-    selfieExt:       selfie.ext       || '',
-    cnhFrenteBase64: cnhFrente.base64 || '',
-    cnhFrenteType:   cnhFrente.type   || '',
-    cnhFrenteExt:    cnhFrente.ext    || '',
-    cnhVersoBase64:  cnhVerso.base64  || '',
-    cnhVersoType:    cnhVerso.type    || '',
-    cnhVersoExt:     cnhVerso.ext     || '',
+    timestamp:      new Date().toLocaleString('pt-BR'),
+    aceite:         'Sim',
+    nomeCompleto:   v('nomeCompleto'),
+    apelido:        v('apelido'),
+    dataNascimento: v('dataNascimento'),
+    sexo:           (document.querySelector('input[name="sexo"]:checked') || {value:''}).value,
+    estadoCivil:    v('estadoCivil'),
+    rg:             v('rg'),
+    cpf:            v('cpf'),
+    creci:          v('creci'),
+    cep:            v('cep'),
+    endereco:       v('endereco'),
+    numEndereco:    v('numEndereco'),
+    complemento:    v('complemento'),
+    bairro:         v('bairro'),
+    cidade:         v('cidade'),
+    uf:             v('uf'),
+    celular:        v('celular'),
+    emailPessoal:   v('emailPessoal'),
+    possuiPJ:       (document.querySelector('input[name="possuiPJ"]:checked') || {value:''}).value,
+    nomeEmpresa:    v('nomeEmpresa'),
+    cnpj:           v('cnpj'),
+    banco:          v('banco'),
+    agencia:        v('agencia'),
+    conta:          contaNum,
+    digitoConta:    digitoNum,
+    tipoConta:      v('tipoConta'),
+    chavePix:       v('chavePix'),
+    favorecido:     v('favorecido'),
+    cpfFavorecido:  v('cpfFavorecido'),
+    token:          FORM_TOKEN,
   };
 
-  // URL e token do Google Apps Script — substituir após implantar o sheets_backend_ficha.js
-  // IMPORTANTE: o FORM_TOKEN deve ser idêntico ao TOKEN_SECRETO definido no script.
-  const SHEET_URL   = 'https://script.google.com/macros/s/SEU_SCRIPT_ID_AQUI/exec';
-  const FORM_TOKEN  = '5gZwEvcxAV7i5t5m74Fl3hgdE4lr5DP8ej0fkOEOp177AFrO02FkLKQ1sHfJcGz9';
-
   try {
-    // no-cors: browser não lê a resposta, mas os dados chegam ao Apps Script
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 60000); // 60s timeout
-    await fetch(SHEET_URL, {
-      method:  'POST',
-      mode:    'no-cors',
-      headers: { 'Content-Type': 'text/plain' },
-      body:    JSON.stringify(dados),
-      signal:  controller.signal,
-    });
-    clearTimeout(timeout);
+    // GET com no-cors — mesmo método do formulario_index.html, funciona com GAS
+    const params = new URLSearchParams(dados).toString();
+    await fetch(SHEET_URL + '?' + params, { method: 'GET', mode: 'no-cors' });
     document.getElementById('nomeConfirmacao').textContent = v('nomeCompleto').split(' ')[0];
     irParaStep(2);
   } catch(err) {
     btn.disabled = false;
     btn.innerHTML = 'Enviar Ficha de Cadastro ✓';
-    const msg = err.name === 'AbortError'
-      ? 'Tempo esgotado. Verifique sua conexão e tente novamente.'
-      : 'Erro ao enviar. Verifique sua conexão e tente novamente.';
-    alert(msg);
+    alert('Erro ao enviar. Verifique sua conexão e tente novamente.');
   }
 }
 </script>
